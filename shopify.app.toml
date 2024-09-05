@@ -3,7 +3,7 @@
 client_id = "8387f5d77263c4a41cf57df11cc4f386"
 name = "Build Your Box app"
 handle = "build-your-box-app-1"
-application_url = "https://groups-celebrate-sr-belize.trycloudflare.com"
+application_url = "https://insulation-recommend-companion-surely.trycloudflare.com"
 embedded = true
 
 [build]
@@ -17,9 +17,9 @@ scopes = "write_products"
 
 [auth]
 redirect_urls = [
-  "https://groups-celebrate-sr-belize.trycloudflare.com/auth/callback",
-  "https://groups-celebrate-sr-belize.trycloudflare.com/auth/shopify/callback",
-  "https://groups-celebrate-sr-belize.trycloudflare.com/api/auth/callback"
+  "https://insulation-recommend-companion-surely.trycloudflare.com/auth/callback",
+  "https://insulation-recommend-companion-surely.trycloudflare.com/auth/shopify/callback",
+  "https://insulation-recommend-companion-surely.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]
@@ -28,6 +28,11 @@ api_version = "2024-07"
   [[webhooks.subscriptions]]
   topics = [ "app/uninstalled" ]
   uri = "/webhooks"
+
+[app_proxy]
+url = "https://insulation-recommend-companion-surely.trycloudflare.com"
+subpath = "proxy"
+prefix = "apps"
 
 [pos]
 embedded = false
