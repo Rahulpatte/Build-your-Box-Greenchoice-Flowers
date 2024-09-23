@@ -1,56 +1,70 @@
-// src/routes/api/fetchproductdetails.js
 import { authenticate } from "../shopify.server.js";
 
 export const action = async ({ request }) => {
-  try {
-    // Check if the request is of type POST and contains JSON body
-    if (request.method !== 'POST') {
-      return { status: 405, message: 'Method not allowed' }; // Only POST method is allowed
-    }
+  const { session, admin } = await authenticate.public.appProxy(request);
+  const { shop, accessToken } = session;
 
-    const requestBody = await request.json();
+  // console.log(shop, accessToken, "ACCESS_AND_SHOP");
+  // Ensure the request is a POST method
+  if (request.method !== "POST") {
+    return { status: 405, message: "Method not allowed" };
+  }
 
-    const { productIds } = requestBody;
+  const requestBody = await request.json(); // Parse the request body
+// console.log("requestBody", requestBody);
 
-    if (!productIds || !Array.isArray(productIds) || productIds.length === 0) {
-      return { status: 400, message: 'No product IDs provided' };
-    }
+  const { productIds } = requestBody;
+  const arr = [];
+// console.log("productIds", productIds);
 
-    // Fetch product details from Shopify admin GraphQL
-    const { admin } = await authenticate.admin(); // Authenticate with Shopify admin API
-
-    const queries = productIds.map((id, index) => `
-      product${index}: product(id: "${id}") {
-        title
-        description
-        onlineStoreUrl
-        images(first: 1) {
-          edges {
-            node {
-              src
+  for (let i = 0; i < productIds.length; i++) {
+    const response = await admin.graphql(
+      `#graphql
+      query {
+        productVariant(id: "${productIds[i]}") {
+          id
+          displayName
+          price
+          product {
+            id
+            description
+            images(first: 1) {
+              edges {
+                node {
+                  src
+                  
+                }
+              }
             }
           }
         }
-      }
-    `);
-
-    const query = `
-      query {
-        ${queries.join('\n')}
-      }
-    `;
-
-    // Execute the Shopify admin GraphQL query
-    const response = await admin.graphql(query);
-
-    // Collect product details
-    const fetchedProductDetails = productIds.map((_, index) => response.data[`product${index}`]);
-
-    console.log("fetchedProductDetails", fetchedProductDetails);
-
-    return { status: 200, data: fetchedProductDetails };
-  } catch (error) {
-    console.error('Server error:', error);
-    return { status: 500, message: 'Server error', error };
+      }`,
+      
+    );
+    
+    const data = await response.json();
+    // console.log("fetchproductdata", data);
+    
+    arr.push(data.data.productVariant);
   }
+
+  
+  // const ids = extractNumericIds(productIds).join('%2C');
+  // console.log("productIds", productIds);
+
+  // const ids = productIds.join('%2C');
+  // console.log(ids);
+
+  // const response = await fetch(`https://${shop}/admin/api/2024-07/products.json?ids=${ids}.json`, {
+  //   method: "GET",
+  //   headers: {
+  //     "Content-Type": "application/json",
+  //     "X-Shopify-Access-Token": accessToken
+  //   }
+  // })
+
+  // const data = await response.json();
+  // console.log(data);
+
+  return arr;
 };

@@ -1,0 +1,9 @@
+.dropzone-container {
+    width: max-content;
+    margin: 40px auto 0px;
+}
+.dropzone-container .Polaris-Button--textAlignCenter {
+    position: absolute;
+    right: -5px;
+    top: -5px;
+}

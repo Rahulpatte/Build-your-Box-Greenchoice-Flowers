@@ -3,7 +3,7 @@
 client_id = "8525d7c64c32068b10d3800832823742"
 name = "Build-Your-Box"
 handle = "build-your-box-1"
-application_url = "https://poker-hs-til-actively.trycloudflare.com"
+application_url = "https://scottish-char-patients-med.trycloudflare.com"
 embedded = true
 
 [build]
@@ -12,13 +12,13 @@ dev_store_url = "greenchoice-flowers-subscriptions.myshopify.com"
 
 [access_scopes]
 # Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
-scopes = "read_products,write_content,write_products"
+scopes = "read_products,write_content"
 
 [auth]
 redirect_urls = [
-  "https://poker-hs-til-actively.trycloudflare.com/auth/callback",
-  "https://poker-hs-til-actively.trycloudflare.com/auth/shopify/callback",
-  "https://poker-hs-til-actively.trycloudflare.com/api/auth/callback"
+  "https://scottish-char-patients-med.trycloudflare.com/auth/callback",
+  "https://scottish-char-patients-med.trycloudflare.com/auth/shopify/callback",
+  "https://scottish-char-patients-med.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]
