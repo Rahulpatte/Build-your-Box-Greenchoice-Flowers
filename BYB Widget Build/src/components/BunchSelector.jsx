@@ -4,7 +4,7 @@ import React from 'react';
 const BunchSelector = ({ bunches, selectedBunch, onBunchChange, onContinue }) => {
   return (
     <div className="bunches">
-      <h4>Bunches</h4>
+      {/* <h4>Bunches</h4> */}
       <form>
         {bunches.map((bunch, index) => (
           <div key={index} className="checkbox">
