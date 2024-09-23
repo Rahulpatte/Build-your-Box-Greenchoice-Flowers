@@ -1,28 +1,38 @@
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
-client_id = "8525d7c64c32068b10d3800832823742"
-name = "Build-Your-Box"
-handle = "build-your-box-1"
-application_url = "https://poker-hs-til-actively.trycloudflare.com"
+client_id = "8387f5d77263c4a41cf57df11cc4f386"
+name = "Build Your Box app"
+handle = "build-your-box-app-1"
+application_url = "https://insulation-recommend-companion-surely.trycloudflare.com"
 embedded = true
 
 [build]
 automatically_update_urls_on_dev = true
-dev_store_url = "greenchoice-flowers-subscriptions.myshopify.com"
+dev_store_url = "quickstart-bac0fc57.myshopify.com"
+include_config_on_deploy = true
 
 [access_scopes]
 # Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
-scopes = "read_products,write_content,write_products"
+scopes = "write_products"
 
 [auth]
 redirect_urls = [
-  "https://poker-hs-til-actively.trycloudflare.com/auth/callback",
-  "https://poker-hs-til-actively.trycloudflare.com/auth/shopify/callback",
-  "https://poker-hs-til-actively.trycloudflare.com/api/auth/callback"
+  "https://insulation-recommend-companion-surely.trycloudflare.com/auth/callback",
+  "https://insulation-recommend-companion-surely.trycloudflare.com/auth/shopify/callback",
+  "https://insulation-recommend-companion-surely.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]
 api_version = "2024-07"
+
+  [[webhooks.subscriptions]]
+  topics = [ "app/uninstalled" ]
+  uri = "/webhooks"
+
+[app_proxy]
+url = "https://insulation-recommend-companion-surely.trycloudflare.com"
+subpath = "proxy"
+prefix = "apps"
 
 [pos]
 embedded = false

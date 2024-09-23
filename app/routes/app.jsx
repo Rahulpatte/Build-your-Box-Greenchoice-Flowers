@@ -23,7 +23,7 @@ export default function App() {
         <Link to="/app" rel="home">
           Home
         </Link>
-        <Link to="/app/bundles">View Bundles</Link>
+        <Link to="/app/collections">View Collections</Link>
       </NavMenu>
       <Outlet />
     </AppProvider>

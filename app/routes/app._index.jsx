@@ -6,7 +6,7 @@ export default function Index() {
   const navigate = useNavigate();
 
   React.useEffect(() => {
-    navigate("/app/bundles");
+    navigate("/app/collections");
   }, []);
 
   return (<></>)
