@@ -3,12 +3,13 @@
 client_id = "71da156625c13ff93fc9cd47efceb9c1"
 name = "Latest-Build-Your-Box"
 handle = "latest-build-your-box"
-application_url = "https://laura-room-economy-barrier.trycloudflare.com"
+application_url = "https://favourites-forge-consultation-loc.trycloudflare.com"
 embedded = true
 
 [build]
 automatically_update_urls_on_dev = true
 dev_store_url = "greenchoice-flowers-subscriptions.myshopify.com"
+include_config_on_deploy = true
 
 [access_scopes]
 # Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
@@ -16,16 +17,16 @@ scopes = "read_products,write_content,write_products"
 
 [auth]
 redirect_urls = [
-  "https://laura-room-economy-barrier.trycloudflare.com/auth/callback",
-  "https://laura-room-economy-barrier.trycloudflare.com/auth/shopify/callback",
-  "https://laura-room-economy-barrier.trycloudflare.com/api/auth/callback"
+  "https://favourites-forge-consultation-loc.trycloudflare.com/auth/callback",
+  "https://favourites-forge-consultation-loc.trycloudflare.com/auth/shopify/callback",
+  "https://favourites-forge-consultation-loc.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]
 api_version = "2024-07"
 
 [app_proxy]
-url = "https://laura-room-economy-barrier.trycloudflare.com"
+url = "https://favourites-forge-consultation-loc.trycloudflare.com"
 subpath = "bridge"
 prefix = "apps"
 

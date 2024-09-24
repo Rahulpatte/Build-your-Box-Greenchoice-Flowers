@@ -21,7 +21,7 @@ import * as React from "react";
 // import { useNavigate } from '@remix-run/react';
 
 import { EditIcon } from "@shopify/polaris-icons";
-import "../css/customStyles.css";
+// import "../css/customStyles.css";
 
 import { useState, useCallback, useEffect } from "react";
 import { NoteIcon } from "@shopify/polaris-icons";
