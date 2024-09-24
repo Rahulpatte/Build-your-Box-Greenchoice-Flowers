@@ -56,13 +56,15 @@ function Bundle() {
   const[editedproductIds,setEditedProductIds] = useState([]);
   const { collectionId } = useParams();
   // const [productDetails, setProductDetails] = useState([]);
+  const[createBundleLoader,setCreateBundleLoader]=useState(false)
+  const[editcreateBundlerLoader,setEditcreateBundlerLoader]=useState(false)
 
 const[viewloading,setViewLoading]=useState(false);
 
 
   const navigate = useNavigate();
   
-  const [toastActive, setToastActive] = useState(false); // Toast state for deletion confirmation
+  const [toastActive, setToastActive] = useState(false); // Toast state for deletion confirmation=useSt
 
   const [updateActive, setUpdateActive] = useState(false); //
 
@@ -170,9 +172,11 @@ const[viewloading,setViewLoading]=useState(false);
 
 
   };
-
   const resourcePicker = async (singleSelection = false) => {
     try {
+      // setLoading(true); // Start loading when resource picker is opened
+ 
+  
       const selected = await shopify.resourcePicker({
         type: "product",
         multiple: !singleSelection,
@@ -180,6 +184,8 @@ const[viewloading,setViewLoading]=useState(false);
           variants: true,
         },
       });
+
+      setCreateBundleLoader(true);
   
       const productDetails = selected.selection.flatMap((product) =>
         product.variants.map((variant) => ({
@@ -191,7 +197,6 @@ const[viewloading,setViewLoading]=useState(false);
         }))
       );
   
-      // Extract new variant IDs
       const newProductIds = selected.selection
         .map((product) =>
           product.variants.length > 1
@@ -202,44 +207,41 @@ const[viewloading,setViewLoading]=useState(false);
   
       if (collectionId !== 0) {
         // Edit mode
-        
+      // Still loading while fetching GraphQL data
+      setEditcreateBundlerLoader(true)
   
-        // Merge new product IDs with existing `editedproductIds`
         const mergedProductIds = [...editedproductIds, ...newProductIds];
-  setViewLoading(true)
-        // Fetch additional data for all products (old + new)
+  
         await fetchGraphQLData(mergedProductIds);
+        setEditcreateBundlerLoader(false)
   
-        // Now update product IDs, titles, and images
         setProductIds(mergedProductIds);
-  
-        // Update the UI with titles and images after fetching all product data
         const mergedProductDetails = [
           ...editedproductIds.map((id, index) => ({
-            title: productTitles[index], // Use existing titles from state for edited products
-            image: productImages[index], // Use existing images from state for edited products
+            title: productTitles[index],
+            image: productImages[index],
           })),
           ...productDetails,
         ];
   
         setProductTitles(mergedProductDetails.map((product) => product.title));
         setProductImages(mergedProductDetails.map((product) => product.image));
-        
-  setViewLoading(false)
-        console.log("mergedProductIds", mergedProductIds);
+
       } else {
-        // Create mode: directly update state without fetching additional data
-        // setLoading(true);
         setProductIds(newProductIds);
         setProductTitles(productDetails.map((product) => product.title));
         setProductImages(productDetails.map((product) => product.image));
       }
   
-      // Return the selected products for further processing
+      // setLoading(false); // Stop loading once products are loaded
+      setCreateBundleLoader(false);
+  
       return selected.selection;
     } catch (error) {
+      // setLoading(false); // Stop loading in case of an error
       console.error("Error picking resources:", error);
       setGeneralError("Failed to pick resources.");
+      setCreateBundleLoader(false);
       return null;
     }
   };
@@ -285,7 +287,7 @@ const handlePreviousPage = useCallback(() => {
             throw new Error(`HTTP error! status: ${response.status}`);
           }
           const bundle = await response.json(); // Assuming it returns an array of bundles
-          // console.log("BUNDLE_FETCHED_SINGLE", bundle);
+          console.log("BUNDLE_FETCHED_SINGLE", bundle);
 
           if (bundle) {
             setTitle(bundle.title);
@@ -293,7 +295,7 @@ const handlePreviousPage = useCallback(() => {
             setHandle(bundle.handle);
             // setProductImages(bundle.images || []); // Example: Set images if available
             // setImage(bundle.image || ""); // Example: Set image if available
-            console.log("image", bundle.image);
+            // console.log("image", bundle.image);
             // setFile(bundle.image || ""); // Example: Set image if available
             setEditedImage(bundle.image || ""); // Example: Set image if available
             // reader.readAsDataURL(acceptedFiles[0]);
@@ -413,7 +415,7 @@ const handlePreviousPage = useCallback(() => {
   }, []);
 
   const handleSubmit = async () => {
-    setIsLoading(true); // Start loading
+    setIsLoading(true);
     let valid = true;
   
     // Validation for title
@@ -445,10 +447,11 @@ const handlePreviousPage = useCallback(() => {
   
     // Stop loading and return early if form is not valid
     if (!valid) {
-      setIsLoading(false); // Stop loading when validation fails
-      return; // Exit function
+      setIsLoading(false);
+      return;
     }
   
+    // If no new products are selected, use the edited products
     const productsToUpdate = productIds.length > 0 ? productIds : editedproductIds;
   
     // Prepare updated data object
@@ -456,14 +459,15 @@ const handlePreviousPage = useCallback(() => {
       title,
       image: imageToUpdate,
       bunches: selectedBunches.map((option) => option.value),
-      products: productsToUpdate,
+      products: productsToUpdate, // Use existing products if no new ones are selected
       handle,
     };
+    console.log("updatedData", updatedData);
   
     try {
       // Make the update request
       const response = await fetch(`/api/product/${collectionId}`, {
-        method: "PUT",
+        method: "PUT", // Using PUT for updates
         headers: {
           "Content-Type": "application/json",
         },
@@ -477,31 +481,33 @@ const handlePreviousPage = useCallback(() => {
           setImage("");
           setHandle("");
           setSelectedBunches([]);
+          setProductIds([]);
           setGeneralError("");
+  
           toggleToast(); // Show success toast
   
           // Navigate back after a delay
           setTimeout(() => {
             navigate(`/app/bundles`);
-          }, 2000);
+          }, 2000); // Navigate back after 2 seconds
         }
-  
         console.log("Bundle updated successfully!");
-        setIsLoading(false); // Stop loading after successful update
+        setIsLoading(false);
         updatedToast(); // Show a success toast
       } else {
         console.error("Failed to update bundle");
-        setIsLoading(false); // Stop loading on failure
+        setIsLoading(false);
       }
     } catch (error) {
       console.error("An error occurred:", error);
-      setIsLoading(false); // Stop loading on error
+      setIsLoading(false);
     }
   };
   
+  
 
   const handleEdit = async (index) => {
-    console.log("editing product variant ids:", editedproductIds);
+    // console.log("editing product variant ids:", editedproductIds);
     // console.log("editing product id at index", editedproductIds[index]);
   
     // Calculate the actual index considering pagination
@@ -567,34 +573,34 @@ const handlePreviousPage = useCallback(() => {
   const handleDelete = async (index) => {
     // Calculate the actual index considering pagination
     const actualIndex = index + ((currentPage - 1) * itemsPerPage);
-    // console.log('ProductIds:', productIds);
     
+    console.log("Deleting product at index:", actualIndex);
   
-    // Create a copy of the product titles, images, and productIds
-    const updatedTitles = [...productTitles];
-    const updatedImages = [...productImages];
-    const updatedProductIds = [...productIds]; // Also update productIds
-    // console.log("updatedProductIds", updatedProductIds);
-    console.log("editedproductIds", editedproductIds);
-    
-    console.log("index", index); 
+    setProductTitles((prevTitles) => {
+      const updatedTitles = [...prevTitles];
+      updatedTitles.splice(index, 1); // Remove the product title at the specific index
+      return updatedTitles;
+    });
   
-    // Remove the product data from the arrays using the actual index
-    updatedTitles.splice(index, 1);
-    updatedImages.splice(index, 1);
-    editedproductIds.splice(index, 1); // Remove the productId as well
-    
-    // Update the state with the modified arrays
-    setProductTitles(updatedTitles);
-    setProductImages(updatedImages);
-    // setProductIds(updatedProductIds); // Update productIds as well
+    setProductImages((prevImages) => {
+      const updatedImages = [...prevImages];
+      updatedImages.splice(index, 1); // Remove the product image at the specific index
+      return updatedImages;
+    });
   
-    // Prepare the updated data object
+    setEditedProductIds((prevProductIds) => {
+      const updatedProductIds = [...prevProductIds];
+      updatedProductIds.splice(index, 1); // Remove the productId at the specific index
+      console.log("Updated productIds after deletion:", updatedProductIds);
+      return updatedProductIds;
+    });
+  
+    // Prepare the updated data object for the bundle update
     const updatedData = {
       title,
       image: image || editedimage,
       bunches: selectedBunches.map((option) => option.value),
-      products: editedproductIds, // Updated products after deletion
+      products: editedproductIds.filter((_, i) => i !== actualIndex), // Remove the deleted product from the products list
       handle,
     };
   
@@ -607,8 +613,7 @@ const handlePreviousPage = useCallback(() => {
         },
         body: JSON.stringify(updatedData),
       });
-
-      deleteToast();
+      deleteToast()
   
       if (response.ok) {
         console.log("Bundle updated successfully after product deletion!");
@@ -619,6 +624,7 @@ const handlePreviousPage = useCallback(() => {
       console.error("An error occurred while updating the bundle:", error);
     }
   };
+  
   
 
 
@@ -657,7 +663,7 @@ const rows = paginatedTitles.map((title, index) => (
     {/* <IndexTable.Cell>{productStatus[actualIndex(index)]}</IndexTable.Cell> */}
     <IndexTable.Cell>
       <InlineStack gap="500">
-        <Button onClick={() => handleEdit(actualIndex(index))}>Edit</Button>
+       
         {/* <EditIcon/> */}
         <Button onClick={() => handleDelete(actualIndex(index))}>Delete</Button>
       </InlineStack>
@@ -795,7 +801,7 @@ const rows = paginatedTitles.map((title, index) => (
                   </Button>
                 </div>
 
-{viewloading?(<div style={{display: 'flex', justifyContent: 'center', alignItems: 'center', height: '500px'}}>
+{createBundleLoader?(<div style={{display: 'flex', justifyContent: 'center', alignItems: 'center', height: '500px'}}>
 <Spinner accessibilityLabel="Loading products" size="large" />
 
 </div>
@@ -947,34 +953,41 @@ const rows = paginatedTitles.map((title, index) => (
                     Choose Products for this Bundle
                   </Button>
                 </div>
+                {editcreateBundlerLoader ? (
+  <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '500px' }}>
+    <Spinner accessibilityLabel="Loading products" size="large" />
+  </div>
+) : (
+  <div className="productTable">
+    <IndexTable
+      resourceName={resourceName}
+      itemCount={productTitles.length}
+      selectedItemsCount={
+        allResourcesSelected ? "All" : selectedResources.length
+      }
+      onSelectionChange={handleSelectionChange}
+      headings={[
+        { title: "ID" },
+        { title: "Image" },
+        { title: "Title" },
+        { title: "Actions" },
+      ]}
+      selectable={false}
+      bulkActions={[]}
+    >
+      {rows}
+    </IndexTable>
+    <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+      <Pagination
+        hasPrevious={currentPage > 1}
+        onPrevious={handlePreviousPage}
+        hasNext={currentPage < totalPages}
+        onNext={handleNextPage}
+      />
+    </div>
+  </div>
+)}
 
-                <div className="productTable">
-                  <IndexTable
-                    resourceName={resourceName}
-                    itemCount={productTitles.length}
-                    selectedItemsCount={
-                      allResourcesSelected ? "All" : selectedResources.length
-                    }
-                    onSelectionChange={handleSelectionChange}
-                    headings={[
-                      { title: "ID" },
-                      { title: "Image" },
-                      { title: "Title" },
-                      // { title: "Status" },
-                      { title: "Actions" },
-                    ]}
-                    selectable={false}
-                    bulkActions={[]}
-                    // pagination={{
-                    //   hasNext: true,
-                    //   hasPrevious: true,
-                    //   onNext: () => handleNextPage,
-                    //   onPrevious: () => handlePreviousPage,
-                    // }}
-                  >
-                    {rows}
-                  </IndexTable>
-                </div>
               </BlockStack>
             </LegacyCard>
 
