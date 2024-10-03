@@ -1,10 +1,18 @@
-// src/components/BunchSelector.jsx
-import React from 'react';
+import React, { useEffect } from 'react';
 
 const BunchSelector = ({ bunches, selectedBunch, onBunchChange, onContinue }) => {
+  
+  // Set the first bunch as selected by default on mount
+  useEffect(() => {
+    if (!selectedBunch && bunches.length > 0) {
+      onBunchChange(bunches[0]);  // Automatically select the first bunch
+    }
+  }, [bunches, selectedBunch, onBunchChange]);
+
   return (
     <div className="bunches">
-      {/* <h4>Bunches</h4> */}
+      <h2>Choose Your Box</h2>
+      <h4>SELECT NUMBER OF BUNCHES</h4>
       <form>
         {bunches.map((bunch, index) => (
           <div key={index} className="checkbox">
@@ -20,7 +28,9 @@ const BunchSelector = ({ bunches, selectedBunch, onBunchChange, onContinue }) =>
           </div>
         ))}
       </form>
-      <button onClick={onContinue} disabled={!selectedBunch}>Continue</button>
+      <button onClick={onContinue} disabled={!selectedBunch}>
+        Continue
+      </button>
     </div>
   );
 };

@@ -6,11 +6,11 @@ import "../index.css"
 const BundleDetails = ({ bundle, selectedBunch, onBunchChange, onContinue }) => {
   return (
     <div className="App">
-      <h2>Bundle Details</h2>
+      <h2>{bundle.title}</h2>
       <div className='bundle-details'>
       <div className='bundle'>
-      <img style={{ width: "350px", height: "250px" }} src={bundle.image} alt={bundle.title} />
-      <h3>{bundle.title}</h3>
+      <img  src={bundle.image} alt={bundle.title} />
+      <h3></h3>
       </div>
   
       {bundle.bunches && (

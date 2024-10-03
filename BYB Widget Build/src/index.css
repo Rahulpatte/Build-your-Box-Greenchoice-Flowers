@@ -85,3 +85,58 @@ h3 {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
+
+
+
+
+.progress-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  max-width: 90%;
+  margin: 0 auto;
+  padding: 10px 0;
+}
+.progress-step {
+  text-align: center;
+  flex: 1;
+  position: relative;
+}
+.progress-step:before {
+  content: "";
+  position: absolute;
+  top: 20px;
+  right: 24%;
+  width: 440px;
+  height: 2px;
+  background-color: #000;
+  z-index: -1;
+  transform: translate(-50%);
+}
+.progress-step:first-child:before {
+  content: none;
+}
+.progress-number {
+  display: inline-block;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background-color: orange;
+  color: white;
+  line-height: 30px;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+.step-title {
+  font-size: 12px;
+  font-weight: bold;
+  color: #777;
+}
+.current .progress-number {
+  background-color: orange;
+}
+.upcoming .progress-number {
+  background-color: #f5d7c5;
+  color: #f5d7c5;
+}

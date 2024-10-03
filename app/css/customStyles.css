@@ -1,0 +1,21 @@
+.css-1nmdiq5-menu {
+    top: 100%;
+    position: absolute;
+    width: 100%;
+    z-index: 9999;
+    background-color: hsl(0, 0%, 100%);
+    border-radius: 4px;
+    box-shadow: 0 0 0 1px hsla(0, 0%, 0%, 0.1),0 4px 11px hsla(0, 0%, 0%, 0.1);
+    margin-bottom: 8px;
+    margin-top: 8px;
+    box-sizing: border-box;
+}
+
+.productTable .Polaris-IndexTable__Table .Polaris-IndexTable__TableCell {
+    z-index: 0;
+}
+
+.Polaris-IndexTable{
+    z-index: 0;
+    position: relative;
+}

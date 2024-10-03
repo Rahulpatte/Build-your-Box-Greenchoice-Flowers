@@ -22,6 +22,7 @@ import * as React from "react";
 
 import { EditIcon } from "@shopify/polaris-icons";
 // import "../css/customStyles.css";
+import "../css/customStyles.css";
 
 import { useState, useCallback, useEffect } from "react";
 import { NoteIcon } from "@shopify/polaris-icons";
@@ -32,6 +33,7 @@ import makeAnimated from "react-select/animated";
 import { useNavigate, useParams } from "@remix-run/react";
 
 const animatedComponents = makeAnimated();
+// import './customstyles.css'
 
 // export const loader = () => {}
 // export const action = () => {}
@@ -953,7 +955,7 @@ const rows = paginatedTitles.map((title, index) => (
                     Choose Products for this Bundle
                   </Button>
                 </div>
-                {editcreateBundlerLoader ? (
+                {createBundleLoader ? (
   <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '500px' }}>
     <Spinner accessibilityLabel="Loading products" size="large" />
   </div>

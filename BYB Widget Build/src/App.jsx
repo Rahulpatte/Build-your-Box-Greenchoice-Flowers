@@ -4,7 +4,7 @@ import { Loader } from "./components/Loader";
 import { useNavigate } from 'react-router-dom';
 
 function App() {
-  console.log("zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz");
+  console.log("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb");
 
   const [data, setData] = useState([]);
   const [bundle, setBundle] = useState(null);
@@ -17,6 +17,11 @@ function App() {
   const [showModal, setShowModal] = useState(false); // Modal for displaying cart
   const [currentBunchSize, setCurrentBunchSize] = useState(null);
   const [totalcartprice, setTotalCartPrice] = useState(0);
+  
+  const [currentStep, setCurrentStep] = useState(1);
+
+
+  const[isBunchLimitExceeded,setIsBunchLimitExceeded]=useState(false)
 
 
 // const [cartBundleID,setCartBundleID]=useState("");
@@ -70,17 +75,6 @@ const [loading, setLoading] = useState(false); // Add loading state
   };
 
   // create product
-  const createProduct = async () => {
-    const response = await fetch(
-      `https://${window.location.host}/apps/bridge/api/cartbundleproducts`,
-      {
-        method: "POST",
-      },
-    );
-    const data = await response.json();
-    console.log("DATA_AFTER_PRODUCT_CREATION", data);
-    return data;
-  };
 
   useEffect(() => {
     getcartproducts();
@@ -118,13 +112,20 @@ const [loading, setLoading] = useState(false); // Add loading state
 
   const handleBunchChange = (bunch) => {
     setSelectedBunch(bunch);
-    setShowModal(false);
-    setTotalSelectedProducts(0);
-    setProductQuantities(new Array(productDetails.length).fill(0)); // Reset product quantities
+
+    console.log("Bunch",bunch);
+    
+ if(totalSelectedProducts>bunch){
+  setIsBunchLimitExceeded(true)
+ }else{
+  setIsBunchLimitExceeded(false)
+ }
     setCurrentBunchSize(bunch); // Update current bunch size
   };
 
   const handleContinue = () => {
+
+    setCurrentStep(2)
     setShowProducts(true);
   };
 
@@ -157,7 +158,7 @@ const [loading, setLoading] = useState(false); // Add loading state
   };
   
 
-  console.log("ShowModal", showModal);
+  // console.log("ShowModal", showModal);
 
   const handleDecrement = (index) => {
     if (productQuantities[index] > 0) {
@@ -177,38 +178,26 @@ const [loading, setLoading] = useState(false); // Add loading state
   };
 
   const AddtoCart = async () => {
+    console.log("Add To Cart button clicked"); // Add this log to check if the button is clicked
+  
     try {
-    
       setLoading(true);
       const arr = [];
       let product_price = 0;
-     let productname=[]
-     let productImages=[]
-      
-      {productDetails.map((product, index) => {
+      let productname = [];
+      let productImages = [];
+  
+      productDetails.forEach((product, index) => {
         if (productQuantities[index] > 0) {
-          console.log("cartProducts",productDetails);
-          
           product_price += Number(product.price) * Number(productQuantities[index]);
-          // console.log('product_price', product.displayName);
-          productname.push(product.displayName +" "+"(x"+productQuantities[index]+")");
-// console.log("productImages",product.product.images.edges[0].node.src);
-productImages.push(product.product.images.edges[0].node.src);
-         
-          // })
+          productname.push(product.displayName + " (x" + productQuantities[index] + ")");
+          productImages.push(product.product.images.edges[0].node.src);
         }
-      })}
-        
-          console.log("productname", productname);
-          console.log("productImages", productImages);
-          
-           
-          // ),
-      // )}
-
-
-      
-      
+      });
+  
+      console.log("Price:", product_price); // Check if the product price is calculated properly
+      console.log("Product names:", productname); // Check the product names
+  
       const response = await fetch(
         `https://${window.location.host}/apps/bridge/api/cartbundleproducts`,
         {
@@ -216,105 +205,139 @@ productImages.push(product.product.images.edges[0].node.src);
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({price: product_price, images: productImages}),
-        },
+          body: JSON.stringify({ price: product_price, images: productImages }),
+        }
       );
-
-
-      // JSON.stringify({price: product_price, image: productDetails});
-
+  
       const data = await response.json();
-      console.log("DATA", data);
-
+  
       let formData = {
         items: [
           {
             id: data.product.variants[0].id,
             quantity: 1,
-
             properties: {
-              items: productname
-                .map((product) => product)
-                .join(", "),
+              items: productname.join(", "),
             },
           },
         ],
       };
-
-      fetch(`https://${window.location.host}/cart/add`, {
+  
+      console.log("Form Data:", formData); // Log the form data before making the cart request
+  
+      await fetch(`https://${window.location.host}/cart/add`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(formData),
-      }).then((response) => {
-        return response.json();
       });
-
-      // console.log("API Response", data);
-
-      alert("Items added to product successfully");
-      setShowModal(false); // Close the modal
+  
+      alert("Items added to cart successfully");
+      setShowModal(false); // Close the modal after the alert
     } catch (error) {
       console.error("Error:", error);
-      alert("Failed to add items to product.");
-    }
-    finally {
-      setLoading(false); // Stop loader when operation completes
+      alert("Failed to add items to cart.");
+    } finally {
+      setLoading(false);  <h3></h3>
     }
   };
+  
 // console.log("productDetails", productDetails);
   useEffect(() => {
     getdata();
   }, []);
 
-const handleCartButton= () => {
-  window.location.href = 'https://greenchoice-flowers-subscriptions.myshopify.com/cart'; 
-}
+
+
+
+  let totalCartPrice = 0;
+
+
+
+
+
   return (
     <>
-      <h1 className="heading">Build Your Box</h1>
-     
-
-      <button onClick={handleCartButton}>Cart</button>
-      {/* <PacmanLoader /> */}
-
-      <div className="container">
-        {showProducts ? (
-          <div>
-            <h2>Product Details</h2>
-            <ul>
+    {/* Main Content - Product Details or Bundle Details */}
+    <div className="Product-Details-container">
+      {showProducts ? (
+        <>
+          {/* Progress Bar (appears when showProducts is true) */}
+          <div className="progress-container">
+            <div className={`progress-step ${currentStep === 1 ? 'current' : currentStep > 1 ? 'completed' : 'upcoming'}`}>
+              <div className="progress-number">1</div>
+              <div className="step-title">Select Box</div>
+            </div>
+            <hr style={{ borderTop: "1px solid lightgrey" }}></hr>
+            <div className={`progress-step ${currentStep === 2 ? 'current' : currentStep > 2 ? 'completed' : 'upcoming'}`}>
+              <div className="progress-number">2</div>
+              <div className="step-title">Build Your Box</div>
+            </div>
+            <div className={`progress-step ${currentStep === 3 ? 'current' : 'upcoming'}`}>
+              <div className="progress-number">3</div>
+              <div className="step-title">Checkout</div>
+            </div>
+          </div>
+  
+          {/* Product Details */}
+          <div className="product-details-content">
+            <h2 className="product-details-title">{bundle.title}</h2>
+            <ul className="product-details-list">
               {productDetails.map((product, index) => (
-                <li key={index}>
-                  <h3>{product.displayName}</h3>
+                <li key={index} className="product-details-item">
+                  <h3 className="product-name">{product.displayName}</h3>
                   <img
                     src={product?.product?.images?.edges[0]?.node?.src}
                     alt={product?.product?.images?.edges[0]?.node?.alt}
+                    className="product-image"
                     style={{ width: "200px", height: "auto" }}
                   />
-                  <p>{product?.product?.description}</p>
-                  <div>
-                    <button onClick={() => handleDecrement(index)}>-</button>
-                    <span>{productQuantities[index] || 0}</span>
-                    <button onClick={() => handleIncrement(index)}>+</button>
+                  <p className="product-price">{product?.price}</p>
+  
+                  <div className="product-quantity-controls">
+                    <button className="decrement-button" onClick={() => handleDecrement(index)}>
+                      -
+                    </button>
+                    <span className="product-quantity">{productQuantities[index] || 0}</span>
+                    <button className="increment-button" onClick={() => handleIncrement(index)}>
+                      +
+                    </button>
                   </div>
                 </li>
               ))}
             </ul>
-            <p>
-              Total Selected Products: {totalSelectedProducts}/{selectedBunch}
-            </p>
           </div>
-        ) : bundle ? (
+        </>
+      ) : bundle ? (
+        <>
+          {/* Progress Bar (appears when BundleDetails component is rendered) */}
+          <div className="progress-container">
+            <div className={`progress-step ${currentStep === 1 ? 'current' : currentStep > 1 ? 'completed' : 'upcoming'}`}>
+              <div className="progress-number">1</div>
+              <div className="step-title">Select Box</div>
+            </div>
+            <hr style={{ borderTop: "1px solid lightgrey" }}></hr>
+            <div className={`progress-step ${currentStep === 2 ? 'current' : currentStep > 2 ? 'completed' : 'upcoming'}`}>
+              <div className="progress-number">2</div>
+              <div className="step-title">Build Your Box</div>
+            </div>
+            <div className={`progress-step ${currentStep === 3 ? 'current' : 'upcoming'}`}>
+              <div className="progress-number">3</div>
+              <div className="step-title">Checkout</div>
+            </div>
+          </div>
+  
+          {/* Bundle Details */}
           <BundleDetails
             bundle={bundle}
             selectedBunch={selectedBunch}
             onBunchChange={handleBunchChange}
             onContinue={handleContinue}
           />
-        ) : (
-          
-          <div className="grid-container">
+        </>
+      ) : (
+        <div className="grid-container">
           {data?.map((item, index) => (
             <div onClick={() => handleClick(index)} className="grid-item" key={index}>
               <img src={item.image} alt={item.title} />
@@ -322,97 +345,54 @@ const handleCartButton= () => {
             </div>
           ))}
         </div>
-        
-        )}
-      </div>
-
-      {/* <button onClick={createProduct}>Create Product</button> */}
-      {showModal && (
-        <>
-          {console.log(showModal, "showModal")}
-          <div
-            style={{
-              position: "fixed",
-              top: "50%",
-              left: "50%",
-              justifyContent: "center",
-              transform: "translate(-50%, -50%)",
-              backgroundColor: "white",
-              padding: "20px",
-              zIndex: 1000,
-              boxShadow: "0 2px 10px rgba(0,0,0,0.2)",
-              borderRadius: "10px",
-            }}
-          >
-            <h2>Selected Products</h2>
-            <div>
-           
-            </div>
-           
-            <ul>
-              {productDetails.map(
-                (product, index) =>
-                  productQuantities[index] > 0 && (
-                    <li key={index}>
-                      <h3>
-                        {product.displayName} (x{productQuantities[index]})
-                      </h3>
-                      <img
-                        src={product?.product?.images?.edges[0]?.node?.src}
-                        alt={product?.product?.images?.edges[0]?.node?.alt}
-                        style={{ width: "200px", height: "auto" }}
-                      />
-                    </li>
-                  ),
-              )}
-               <button onClick={AddtoCart} disabled={loading} style={{ padding: '10px', fontSize: '16px' }}>
-      {loading ? (
-        <>
-          Adding to Cart
-          <Loader /> {/* Loader component */}
-        </>
-      ) : (
-        'Add to Cart'
       )}
-    </button>
-            </ul>
-            <h2>Bunches</h2>
-      <ul>
-        {bundle.bunches.map((bunch, index) => (
-          <li key={index}>
-            <label>
-              <input
-                type="checkbox"
-                checked={bunch === selectedBunch} // Preselect the checkbox if the bunch matches selectedBunch
-                onChange={() => handleBunchChange(bunch)} // Update selectedBunch on change
-              />
-              Bunch {index + 1}: {bunch}
-            </label>
-          </li>
-        ))}
-      </ul>
-   
-            <button onClick={() => setShowModal(false)}>Close</button>
-          </div>
-
-          {/* Modal Overlay to close the modal when clicking outside */}
-          <div
-            onClick={() => setShowModal(false)}
-            style={{
-              position: "fixed",
-              top: 0,
-              left: 0,
-              width: "100%",
-              height: "100%",
-              backgroundColor: "rgba(0, 0, 0, 0.5)",
-              zIndex: 999,
-            }}
-          />
-        </>
-      )}
-
-      {error && <div className="error">Error: {error}</div>}
-    </>
+    </div>
+  
+    {/* Modal and Cart Handling */}
+    {showModal && (
+      <>
+        <div style={modalStyles}>
+          <h2>Selected Products</h2>
+          <ul>
+            {productDetails.map((product, index) => {
+              const quantity = productQuantities[index];
+              if (quantity > 0) {
+                const itemTotal = product.price * quantity;
+                totalCartPrice += itemTotal;
+  
+                return (
+                  <li key={index}>
+                    <h3>{product.displayName} (x{quantity})</h3>
+                    <img
+                      src={product?.product?.images?.edges[0]?.node?.src}
+                      alt={product?.product?.images?.edges[0]?.node?.alt}
+                      style={{ width: "200px", height: "auto" }}
+                    />
+                    <h3>{itemTotal}</h3>
+                    <div>
+                      <button onClick={() => handleDecrement(index)}>-</button>
+                      <span>{productQuantities[index] || 0}</span>
+                      <button onClick={() => handleIncrement(index)}>+</button>
+                    </div>
+                  </li>
+                );
+              }
+              return null;
+            })}
+          </ul>
+          <p>Total Price: {totalCartPrice}</p>
+          <button onClick={AddtoCart} disabled={loading}>
+            {loading ? "Adding..." : "Add To Cart"}
+          </button>
+          <button onClick={() => setShowModal(false)}>Close</button>
+        </div>
+        <div style={overlayStyles} />
+      </>
+    )}
+  
+    {error && <div className="error">Error: {error}</div>}
+  </>
+  
   );
 }
 

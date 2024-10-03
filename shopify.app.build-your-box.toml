@@ -1,28 +1,34 @@
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
-client_id = "8525d7c64c32068b10d3800832823742"
+client_id = "1d9e140c084b68785ec28278af0ec4c8"
 name = "Build-Your-Box"
-handle = "build-your-box-1"
-application_url = "https://scottish-char-patients-med.trycloudflare.com"
+handle = "build-your-box-prod"
+application_url = "https://usb-pants-bryant-decided.trycloudflare.com"
 embedded = true
 
 [build]
 automatically_update_urls_on_dev = true
-dev_store_url = "greenchoice-flowers-subscriptions.myshopify.com"
+dev_store_url = "test-build-your-box.myshopify.com"
+include_config_on_deploy = true
 
 [access_scopes]
 # Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
-scopes = "read_products,write_content"
+scopes = "read_products,write_content,write_products"
 
 [auth]
 redirect_urls = [
-  "https://scottish-char-patients-med.trycloudflare.com/auth/callback",
-  "https://scottish-char-patients-med.trycloudflare.com/auth/shopify/callback",
-  "https://scottish-char-patients-med.trycloudflare.com/api/auth/callback"
+  "https://usb-pants-bryant-decided.trycloudflare.com/auth/callback",
+  "https://usb-pants-bryant-decided.trycloudflare.com/auth/shopify/callback",
+  "https://usb-pants-bryant-decided.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]
 api_version = "2024-07"
+
+[app_proxy]
+url = "https://usb-pants-bryant-decided.trycloudflare.com"
+subpath = "bridge"
+prefix = "apps"
 
 [pos]
 embedded = false

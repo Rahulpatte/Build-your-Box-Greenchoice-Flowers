@@ -1,6 +1,8 @@
 import { authenticate } from "../shopify.server.js";
 
 export const action = async ({ request }) => {
+  console.log("Coming ----------------");
+  
   const { session, admin } = await authenticate.public.appProxy(request);
   const { shop, accessToken } = session;
 

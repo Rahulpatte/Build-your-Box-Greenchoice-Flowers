@@ -3,7 +3,7 @@
 client_id = "71da156625c13ff93fc9cd47efceb9c1"
 name = "Latest-Build-Your-Box"
 handle = "latest-build-your-box"
-application_url = "https://favourites-forge-consultation-loc.trycloudflare.com"
+application_url = "https://convertible-application-cluster-rehabilitation.trycloudflare.com"
 embedded = true
 
 [build]
@@ -17,16 +17,16 @@ scopes = "read_products,write_content,write_products"
 
 [auth]
 redirect_urls = [
-  "https://favourites-forge-consultation-loc.trycloudflare.com/auth/callback",
-  "https://favourites-forge-consultation-loc.trycloudflare.com/auth/shopify/callback",
-  "https://favourites-forge-consultation-loc.trycloudflare.com/api/auth/callback"
+  "https://convertible-application-cluster-rehabilitation.trycloudflare.com/auth/callback",
+  "https://convertible-application-cluster-rehabilitation.trycloudflare.com/auth/shopify/callback",
+  "https://convertible-application-cluster-rehabilitation.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]
 api_version = "2024-07"
 
 [app_proxy]
-url = "https://favourites-forge-consultation-loc.trycloudflare.com"
+url = "https://convertible-application-cluster-rehabilitation.trycloudflare.com"
 subpath = "bridge"
 prefix = "apps"
 
