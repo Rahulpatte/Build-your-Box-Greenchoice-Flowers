@@ -28,7 +28,7 @@ const BunchSelector = ({ bunches, selectedBunch, onBunchChange, onContinue }) =>
           </div>
         ))}
       </form>
-      <button onClick={onContinue} disabled={!selectedBunch}>
+      <button className='btn btn--primary' onClick={onContinue} disabled={!selectedBunch}>
         Continue
       </button>
     </div>

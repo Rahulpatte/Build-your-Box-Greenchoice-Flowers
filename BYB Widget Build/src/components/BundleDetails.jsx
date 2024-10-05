@@ -10,7 +10,7 @@ const BundleDetails = ({ bundle, selectedBunch, onBunchChange, onContinue }) => 
       <div className='bundle-details'>
       <div className='bundle'>
       <img  src={bundle.image} alt={bundle.title} />
-      <h3></h3>
+      
       </div>
   
       {bundle.bunches && (

@@ -29,6 +29,7 @@ console.log("productIds", productIds);
           price
           product {
             id
+            tags
             description
             images(first: 1) {
               edges {
