@@ -6,6 +6,9 @@ import "../index.css"
 const BundleDetails = ({ bundle, selectedBunch, onBunchChange, onContinue }) => {
   return (
     <div className="App">
+
+
+
       <h2>{bundle.title}</h2>
       <div className='bundle-details'>
       <div className='bundle'>

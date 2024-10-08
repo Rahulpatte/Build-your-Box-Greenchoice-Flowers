@@ -3,7 +3,7 @@
 client_id = "1d9e140c084b68785ec28278af0ec4c8"
 name = "Build-Your-Box"
 handle = "build-your-box-prod"
-application_url = "https://origins-bowl-cattle-cylinder.trycloudflare.com"
+application_url = "https://quality-dinner-nights-uzbekistan.trycloudflare.com"
 embedded = true
 
 [build]
@@ -17,16 +17,16 @@ scopes = "read_products,write_content,write_products"
 
 [auth]
 redirect_urls = [
-  "https://origins-bowl-cattle-cylinder.trycloudflare.com/auth/callback",
-  "https://origins-bowl-cattle-cylinder.trycloudflare.com/auth/shopify/callback",
-  "https://origins-bowl-cattle-cylinder.trycloudflare.com/api/auth/callback"
+  "https://quality-dinner-nights-uzbekistan.trycloudflare.com/auth/callback",
+  "https://quality-dinner-nights-uzbekistan.trycloudflare.com/auth/shopify/callback",
+  "https://quality-dinner-nights-uzbekistan.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]
 api_version = "2024-07"
 
 [app_proxy]
-url = "https://origins-bowl-cattle-cylinder.trycloudflare.com"
+url = "https://quality-dinner-nights-uzbekistan.trycloudflare.com"
 subpath = "bridge"
 prefix = "apps"
 

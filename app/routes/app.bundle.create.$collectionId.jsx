@@ -61,7 +61,7 @@ function Bundle() {
   const[createBundleLoader,setCreateBundleLoader]=useState(false)
   const[editcreateBundlerLoader,setEditcreateBundlerLoader]=useState(false)
 
-const[viewloading,setViewLoading]=useState(false);
+
 
 
   const navigate = useNavigate();
@@ -175,6 +175,7 @@ const[viewloading,setViewLoading]=useState(false);
 
   };
   const resourcePicker = async (singleSelection = false) => {
+    handleInputChange()
     try {
       // setLoading(true); // Start loading when resource picker is opened
  
@@ -206,16 +207,20 @@ const[viewloading,setViewLoading]=useState(false);
             : [product.variants[0].id]
         )
         .flat();
+
+
+        console.log("newProductIds",newProductIds);
+        
   
       if (collectionId !== 0) {
         // Edit mode
       // Still loading while fetching GraphQL data
-      setEditcreateBundlerLoader(true)
+     
   
         const mergedProductIds = [...editedproductIds, ...newProductIds];
   
         await fetchGraphQLData(mergedProductIds);
-        setEditcreateBundlerLoader(false)
+       
   
         setProductIds(mergedProductIds);
         const mergedProductDetails = [
@@ -282,7 +287,10 @@ const handlePreviousPage = useCallback(() => {
     console.log("COLLECTION_ID", collectionId);
     if (collectionId != 0) {
       console.log("running");
+      setEditcreateBundlerLoader(true)
+      setShoweditedbundle(true);
       const fetchBundle = async () => {
+       
         try {
           const response = await fetch(`/api/bundles/${collectionId}`);
           if (!response.ok) {
@@ -290,15 +298,13 @@ const handlePreviousPage = useCallback(() => {
           }
           const bundle = await response.json(); // Assuming it returns an array of bundles
           console.log("BUNDLE_FETCHED_SINGLE", bundle);
+        
 
           if (bundle) {
             setTitle(bundle.title);
             // Set other state variables if needed
             setHandle(bundle.handle);
-            // setProductImages(bundle.images || []); // Example: Set images if available
-            // setImage(bundle.image || ""); // Example: Set image if available
-            // console.log("image", bundle.image);
-            // setFile(bundle.image || ""); // Example: Set image if available
+          
             setEditedImage(bundle.image || ""); // Example: Set image if available
             // reader.readAsDataURL(acceptedFiles[0]);
             // setFile(bundle.image || ""); // Example: Set image if available
@@ -308,9 +314,11 @@ const handlePreviousPage = useCallback(() => {
             fetchGraphQLData(bundle.products || []);
             setEditedProductIds(bundle.products || []);
             console.log("productsids", bundle.products);
+            console.log("EditedBundleLoader",editcreateBundlerLoader);
             
-           
-            setShoweditedbundle(true);
+            
+           setEditcreateBundlerLoader(false)
+            
             // console.log("showeditedbundle", showeditedbundle);
           } else {
             console.error("Bundle not found");
@@ -324,6 +332,7 @@ const handlePreviousPage = useCallback(() => {
     }
     return () => console.log("BUNDLE_UNMOUNTED");
   }, [collectionId]);
+  console.log("EditedBundleLoader",editcreateBundlerLoader);
 
   const handleDropZoneDrop = useCallback(
     (_dropFiles, acceptedFiles, _rejectedFiles) => {
@@ -455,6 +464,8 @@ const handlePreviousPage = useCallback(() => {
   
     // If no new products are selected, use the edited products
     const productsToUpdate = productIds.length > 0 ? productIds : editedproductIds;
+    console.log("productsId---------------",productIds);
+    
   
     // Prepare updated data object
     const updatedData = {
@@ -508,75 +519,15 @@ const handlePreviousPage = useCallback(() => {
   
   
 
-  const handleEdit = async (index) => {
-    // console.log("editing product variant ids:", editedproductIds);
-    // console.log("editing product id at index", editedproductIds[index]);
-  
-    // Calculate the actual index considering pagination
-    const actualIndex = index + ((currentPage - 1) * itemsPerPage);
-    setEditingIndex(actualIndex);
-  
-    // Open resource picker to select a new product
-    const selectedProduct = await resourcePicker(true); // Open resource picker with single selection
-  
-    if (selectedProduct && selectedProduct.length > 0) {
-      // Create a copy of the current product titles, images, and productIds
-      const updatedTitles = [...productTitles];
-      const updatedImages = [...productImages];
-      const updatedProductIds = [...editedproductIds]; // Copy the existing product IDs
-      console.log("updatedProductIds", updatedProductIds);
-      
-  
-      // Update the specific product data based on the selection
-      updatedTitles[actualIndex] = selectedProduct[0].title;
-      updatedImages[actualIndex] = selectedProduct[0].images[0]?.originalSrc || "";
-  
-      // Update the product ID at the actual index with the new selected product ID
-      updatedProductIds[actualIndex] = selectedProduct[0].id;
-      console.log("updatedProductIds", updatedProductIds);
-      // Update the state with the modified arrays
-      setProductTitles(updatedTitles);
-      setProductImages(updatedImages);
-      setEditedProductIds(updatedProductIds); // Update product IDs in state
-  
-      // Prepare the updated data object for the bundle
-      const updatedData = {
-        title,
-        image: image || editedimage,
-        bunches: selectedBunches.map((option) => option.value),
-        products: updatedProductIds, // Send updated products (with the edited product)
-        handle,
-      };
-  
-      try {
-        // Make the update request to the server to update the bundle
-        const response = await fetch(`/api/product/${collectionId}`, {
-          method: "PUT", // Using PUT for updates
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(updatedData),
-        });
 
-        console.log("response", response);
-        
-  
-        if (response.ok) {
-          console.log("Bundle updated successfully after product edit!");
-        } else {
-          console.error("Failed to update the bundle after product edit");
-        }
-      } catch (error) {
-        console.error("An error occurred while updating the bundle:", error);
-      }
-    }
-  };
-  
   const handleDelete = async (index) => {
     // Calculate the actual index considering pagination
     const actualIndex = index + ((currentPage - 1) * itemsPerPage);
     
     console.log("Deleting product at index:", actualIndex);
+    console.log("Products ids",productIds)
+    // productIds.splice(index,1)
+    
   
     setProductTitles((prevTitles) => {
       const updatedTitles = [...prevTitles];
@@ -596,20 +547,29 @@ const handlePreviousPage = useCallback(() => {
       console.log("Updated productIds after deletion:", updatedProductIds);
       return updatedProductIds;
     });
+
+    setProductIds((prevProductIds) => {
+      const updatedProductIds = [...prevProductIds];
+      updatedProductIds.splice(actualIndex, 1); // Remove the productId at the specific actualIndex
+      console.log("Updated productIds after deletion:", updatedProductIds);
+      return updatedProductIds;
+    });
+
+    handleInputChange()
   
     // Prepare the updated data object for the bundle update
     const updatedData = {
       title,
       image: image || editedimage,
       bunches: selectedBunches.map((option) => option.value),
-      products: editedproductIds.filter((_, i) => i !== actualIndex), // Remove the deleted product from the products list
+      products: editedproductIds.filter((_, i) => i !== actualIndex), 
       handle,
     };
   
     try {
       // Make the update request to the server to update the bundle
       const response = await fetch(`/api/product/${collectionId}`, {
-        method: "PUT", // Using PUT for updates
+        method: "PUT", 
         headers: {
           "Content-Type": "application/json",
         },
@@ -682,95 +642,72 @@ const rows = paginatedTitles.map((title, index) => (
 
  
       {showeditedbundle ? (
-        <Frame>
-          <Page
-            backAction={{ content: "Collections", url: "/app/bundles" }}
-            title="Edit the Bundle"
-            compactTitle
-            primaryAction={{
-              content: "Update",
-              onAction: handleSubmit,
-              disabled: isLoading || !hasChanges,
-            }}
-          >
-            <LegacyCard title="Add below details" sectioned>
-              <BlockStack gap="500">
-                <TextField
-                  label="Title"
-                  value={title}
-                  onChange={handleTitleChange}
-                  error={titleError}
-                />
 
-                <TextField
-                  label="Handle"
-                  value={handle}
-                  onChange={handleHandleChange}
-                />
 
-                <div>
-                  <Text>Upload Image for Collection</Text>
 
-                  {!editedimage ? (
+editcreateBundlerLoader ? (
+  // Loader for when editing data is still being fetched
+  <div
+    style={{
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      height: "500px",
+    }}
+  >
+    <Spinner accessibilityLabel="Loading edit form" size="large" />
+  </div>
+) : (
+  // The Edit Bundle form, once data has been fetched
+  <Frame>
+    <Page
+      backAction={{ content: "Collections", url: "/app/bundles" }}
+      title="Edit the Bundle"
+      compactTitle
+      primaryAction={{
+        content: "Update",
+        onAction: handleSubmit,
+        disabled: isLoading || !hasChanges,
+      }}
+    >
+      <LegacyCard title="Add below details" sectioned>
+        <BlockStack gap="500">
+          <TextField
+            label="Title"
+            value={title}
+            onChange={handleTitleChange}
+            error={titleError}
+          />
+
+          <TextField
+            label="Handle"
+            value={handle}
+            onChange={handleHandleChange}
+          />
+
+          <div>
+            <Text>Upload Image for Collection</Text>
+
+            {!editedimage ? (
+              <div>
+                <DropZone
+                  onDrop={handleDropZoneDrop}
+                  allowMultiple={false}
+                  accept="image/*"
+                  type="image"
+                >
+                  {uploadedFile && (
                     <div>
-                      <DropZone
-                        onDrop={handleDropZoneDrop}
-                        allowMultiple={false}
-                        accept="image/*"
-                        type="image"
+                      {/* Image display */}
+                      {uploadedFile}
+                      {/* Close button with event stop propagation */}
+                      <div
+                        style={{ position: "absolute", top: 0, right: 0 }}
                       >
-                        {uploadedFile && (
-                          <div>
-                            {/* Image display */}
-                            {uploadedFile}
-                            {/* Close button with event stop propagation */}
-                            <div
-                              style={{ position: "absolute", top: 0, right: 0 }}
-                            >
-                              <Button
-                                onClick={(e) => {
-                                  e.stopPropagation(); // Prevents triggering DropZone click event
-                                  handleclosedropzone();
-                                }}
-                              >
-                                X
-                              </Button>
-                            </div>
-                          </div>
-                        )}
-
-                        {/* Show DropZone if no file is uploaded */}
-                        {!uploadedFile && fileUpload}
-                      </DropZone>
-                    </div>
-                  ) : (
-                    <div
-                      style={{
-                        position: "relative",
-                        display: "flex",
-                        justifyContent: "center", // Center horizontally
-                        alignItems: "center", // Center vertically
-                        height: "100%",
-                        borderStyle: "groove",
-                        borderRadius: "15px",
-                        padding: "10px",
-                        // Adjust height as needed
-                      }}
-                    >
-                      {/* Display the uploaded or edited image */}
-                      <img
-                        src={editedimage}
-                        width={300}
-                        height={250}
-                        alt="uploaded"
-                      />
-
-                      {/* Close (X) button to remove the image */}
-                      <div style={{ position: "absolute", top: 0, right: 0 }}>
                         <Button
-                          className="close-button"
-                          onClick={() => {
-                            handleclosedropzone(); // Clear the image
+                          onClick={(e) => {
+                            e.stopPropagation(); // Prevents triggering DropZone click event
+                            handleclosedropzone();
                           }}
                         >
                           X
@@ -778,92 +715,131 @@ const rows = paginatedTitles.map((title, index) => (
                       </div>
                     </div>
                   )}
-                </div>
 
-                <div>
-                  <Text>Select Number of Bunches</Text>
-                  <Select
-                    closeMenuOnSelect={false}
-                    components={animatedComponents}
-                    isMulti
-                    options={colourOptions}
-                    value={selectedBunches}
-                    onChange={handleBunchesChange}
-                    styles={{
-                      control: (base, state) => ({
-                        ...base,
-                        borderColor: bunchesError ? "red" : base.borderColor,
-                      }),
+                  {/* Show DropZone if no file is uploaded */}
+                  {!uploadedFile && fileUpload}
+                </DropZone>
+              </div>
+            ) : (
+              <div
+                style={{
+                  position: "relative",
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  height: "100%",
+                  borderStyle: "groove",
+                  borderRadius: "15px",
+                  padding: "10px",
+                }}
+              >
+                {/* Display the uploaded or edited image */}
+                <img
+                  src={editedimage}
+                  width={300}
+                  height={250}
+                  alt="uploaded"
+                />
+
+                {/* Close (X) button to remove the image */}
+                <div style={{ position: "absolute", top: 0, right: 0 }}>
+                  <Button
+                    className="close-button"
+                    onClick={() => {
+                      handleclosedropzone(); // Clear the image
                     }}
-                  />
-                </div>
-                <div>
-                  <Button onClick={() => resourcePicker(false)}>
-                    Choose Products for this Bundle
+                  >
+                    X
                   </Button>
                 </div>
+              </div>
+            )}
+          </div>
 
-{createBundleLoader?(<div style={{display: 'flex', justifyContent: 'center', alignItems: 'center', height: '500px'}}>
-<Spinner accessibilityLabel="Loading products" size="large" />
+          <div>
+            <Text>Select Number of Bunches</Text>
+            <Select
+              closeMenuOnSelect={false}
+              components={animatedComponents}
+              isMulti
+              options={colourOptions}
+              value={selectedBunches}
+              onChange={handleBunchesChange}
+              styles={{
+                control: (base, state) => ({
+                  ...base,
+                  borderColor: bunchesError ? "red" : base.borderColor,
+                }),
+              }}
+            />
+          </div>
+          <div>
+            <Button onClick={() => resourcePicker(false)}>
+              Choose Products for this Bundle
+            </Button>
+          </div>
 
-</div>
-):(<IndexTable
-  resourceName={resourceName}
-  itemCount={productTitles.length}
-  selectedItemsCount={
-    allResourcesSelected ? "All" : selectedResources.length
-  }
-  loading={loading}
-  onSelectionChange={handleSelectionChange}
-  headings={[
-    { title: "ID" },
-    { title: "Image" },
-    { title: "Title" },
-    // { title: "Status" },
-    { title: "Actions" },
-  ]}
-  selectable={false}
-  bulkActions={[]}
-
->
-  {rows}
-</IndexTable>)}
-
-                
-                <div style={{display: 'flex', justifyContent: 'flex-end' }}>
-  <Pagination
-    hasPrevious={currentPage > 1}
-    onPrevious={handlePreviousPage}
-    hasNext={currentPage < totalPages}
-    onNext={handleNextPage}
-  />
-  </div>
-              </BlockStack>
-            </LegacyCard>
-
-            {updatedtoastMarkup}
-            {deletetoastMarkup}
-
-            {/* {console.log("toastMarkup",updatedtoastMarkup)}  */}
-            {/* <Button onClick={handleSubmit} variant="primary">Update</Button> */}
-
-            <br />
-            <div style={{ display: "flex", justifyContent: "flex-end" }}>
-              <Button
-              // disabled="true"
-              disabled={!hasChanges}
-                loading={isLoading}
-                onClick={handleSubmit}
-                variant="primary"
-              >
-                Update
-              </Button>
-              {/* <Button loading>Save product</Button>; */}
+          {createBundleLoader ? (
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                height: "500px",
+              }}
+            >
+              <Spinner accessibilityLabel="Loading products" size="large" />
             </div>
-          </Page>
+          ) : (
+            <IndexTable
+              resourceName={resourceName}
+              itemCount={productTitles.length}
+              selectedItemsCount={
+                allResourcesSelected ? "All" : selectedResources.length
+              }
+              loading={loading}
+              onSelectionChange={handleSelectionChange}
+              headings={[
+                { title: "ID" },
+                { title: "Image" },
+                { title: "Title" },
+                { title: "Actions" },
+              ]}
+              selectable={false}
+              bulkActions={[]}
+            >
+              {rows}
+            </IndexTable>
+          )}
 
-          {/* <Button onClick={handleSubmit} variant="primary">Save</Button>; */}
-        </Frame>
+          <div style={{ display: "flex", justifyContent: "flex-end" }}>
+            <Pagination
+              hasPrevious={currentPage > 1}
+              onPrevious={handlePreviousPage}
+              hasNext={currentPage < totalPages}
+              onNext={handleNextPage}
+            />
+          </div>
+        </BlockStack>
+      </LegacyCard>
+
+      {updatedtoastMarkup}
+      {deletetoastMarkup}
+
+      <br />
+      <div style={{ display: "flex", justifyContent: "flex-end" }}>
+        <Button
+          disabled={!hasChanges}
+          loading={isLoading}
+          onClick={handleSubmit}
+          variant="primary"
+        >
+          Update
+        </Button>
+      </div>
+    </Page>
+  </Frame>
+)
       ) : (
         <Frame>
           <Page
@@ -873,7 +849,7 @@ const rows = paginatedTitles.map((title, index) => (
             primaryAction={{
               content: "Save",
               onAction: handleSubmit,
-              disabled: isLoading,
+              disabled:  isLoading || !hasChanges,
             }}
           >
             <LegacyCard title="Add below details" sectioned>
@@ -999,7 +975,8 @@ const rows = paginatedTitles.map((title, index) => (
             <br />
             <div style={{ display: "flex", justifyContent: "flex-end" }}>
               <Button
-                loading={isLoading}
+                 disabled={!hasChanges}
+                 loading={isLoading}
                 onClick={handleSubmit}
                 variant="primary"
               >

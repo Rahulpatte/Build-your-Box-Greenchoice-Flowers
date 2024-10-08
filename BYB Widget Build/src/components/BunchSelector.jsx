@@ -8,6 +8,8 @@ const BunchSelector = ({ bunches, selectedBunch, onBunchChange, onContinue }) =>
       onBunchChange(bunches[0]);  // Automatically select the first bunch
     }
   }, [bunches, selectedBunch, onBunchChange]);
+  console.log("Selected Bunch",selectedBunch);
+  
 
   return (
     <div className="bunches">
@@ -15,7 +17,7 @@ const BunchSelector = ({ bunches, selectedBunch, onBunchChange, onContinue }) =>
       <h4>SELECT NUMBER OF BUNCHES</h4>
       <form>
         {bunches.map((bunch, index) => (
-          <div key={index} className="checkbox">
+          <div key={index} className={selectedBunch==bunch?"checkbox Active":"checkbox"}>
             <input
               type="radio"
               id={`bunch-${bunch}`}

@@ -6,10 +6,10 @@ const moon = createAnimation("MoonLoader", "100% {transform: rotate(360deg)}", "
 
 function MoonLoader({
   loading = true,
-  color = "#000000",
+  color = "#064b56",
   speedMultiplier = 1,
   cssOverride = {},
-  size = 60,
+  size = 30,
   ...additionalprops
 }) {
   const { value, unit } = parseLengthAndUnit(size);
