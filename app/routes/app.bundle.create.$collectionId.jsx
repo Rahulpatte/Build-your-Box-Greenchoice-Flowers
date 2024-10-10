@@ -156,18 +156,26 @@ function Bundle() {
       const result = await response.json();
 
       console.log("Product Details Result", result.data);
-
-      const editedproductTitles = result.data.map(
-        (product) => product.displayName,
-      );
-
+      
+      // Clean the display names by removing " - Default Title"
+      const editedproductTitles = result.data.map((product) => {
+        // Clean the title by removing both ' - Default Title' and ' - <number>'
+        const cleanedTitle = product.displayName
+          .replace(' - Default Title', '')  // Remove ' - Default Title'
+          .replace(/\s-\s\d+$/, '')         // Remove ' - <number>' at the end
+          .trim();                          // Trim any extra spaces
+        
+        return cleanedTitle;
+      });
+      
       const editedproductImages = result.data.map(
         (element) => element.product.images.edges[0].node.src,
       );
-
+      
       setProductTitles(editedproductTitles);
       setProductImages(editedproductImages);
       setLoading(false);
+      
     } catch (error) {
       // setLoading (true)
     }
@@ -191,14 +199,25 @@ function Bundle() {
       setCreateBundleLoader(true);
   
       const productDetails = selected.selection.flatMap((product) =>
-        product.variants.map((variant) => ({
-          title: variant.displayName,
-          variantId: variant.id,
-          productId: product.id,
-          image: product.images[0]?.originalSrc || "",
-          status: product.status,
-        }))
+        product.variants.map((variant) => {
+          // Clean the title by removing both " - Default Title" and " - <number>"
+          const cleanedTitle = variant.displayName
+            .replace(' - Default Title', '')  // Remove ' - Default Title'
+            .replace(/\s-\s\d+$/, '')         // Remove ' - <number>' at the end
+            .trim();                          // Trim any extra spaces
+      
+          return {
+            title: cleanedTitle,              // Use the cleaned title here
+            variantId: variant.id,
+            productId: product.id,
+            image: product.images[0]?.originalSrc || "",
+            status: product.status,
+          };
+        })
       );
+      
+
+      console.log("productDetails-----",productDetails)
   
       const newProductIds = selected.selection
         .map((product) =>

@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from "react";
 import BundleDetails from "./components/BundleDetails";
-// import { Loader } from "./components/Loader";
-// import { useNavigate } from 'react-router-dom';
+
 import MoonLoader from "./components/MoonLoader";
 import SuccessPopup from "./components/successfullpopup";
 
 
+import TagSlider from "./components/Slider";
+
 function App() {
-  console.log(";mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm");
+  
 
   const [data, setData] = useState([]);
   const [bundle, setBundle] = useState(null);
@@ -17,7 +18,7 @@ function App() {
   const [productQuantities, setProductQuantities] = useState([]);
   const [error, setError] = useState(null);
   const [showProducts, setShowProducts] = useState(false);
-  const [showModal, setShowModal] = useState(false); // Modal for displaying cart
+  const [showModal, setShowModal] = useState(false); 
   const [currentBunchSize, setCurrentBunchSize] = useState(null);
   
   const [selectedTag, setSelectedTag] = useState("");
@@ -59,23 +60,40 @@ const [showSuccessPopup, setShowSuccessPopup] = useState(false);
       }
 
       const result = await response.json();
-      console.log("Result---------",result);
+      console.log("Result---------", result);
+      
+      const updatedProducts = result.map(product => ({
+        ...product,
+        displayName: product.displayName
+          .replace(" - Default Title", "")   // Remove ' - Default Title'
+          .replace(/\s-\s\d+$/, "")          // Remove ' - <number>' at the end
+          .trim()                            // Trim any extra spaces
+      }));
+      
+      console.log("updatedata----------------------",updatedProducts);
       
 
-      setProductDetails(result);
+      setProductDetails(updatedProducts);
       
       let allTags = [];
 
-      // Loop through the result array
+      
       for (let i = 0; i < result.length; i++) {
-        // Assuming result[i].product.tags is an array
+    
         if (result[i].product.tags && result[i].product.tags.length > 0) {
-          // Concatenate the tags into the allTags array
+         
           allTags = allTags.concat(result[i].product.tags);
         }
       }
       
       allTags = [...new Set(allTags)];
+
+      if (!allTags.includes("All Products")) {
+        allTags.unshift("All Products");
+      }
+      
+
+      console.log("Tgs----------------",allTags)
      
       setTags(allTags)
 
@@ -168,14 +186,12 @@ const [showSuccessPopup, setShowSuccessPopup] = useState(false);
   const handleBunchChange = (bunch) => {
     setSelectedBunch(bunch);
 
-    // console.log("Bunch",bunch);
-    // console.log("totalselected products------------------------",totalSelectedProducts)
  if(totalSelectedProducts>bunch){
   setIsBunchLimitExceeded(true)
  }else{
   setIsBunchLimitExceeded(false)
  }
-    setCurrentBunchSize(bunch); // Update current bunch size
+    setCurrentBunchSize(bunch); 
   };
 
   const handleContinue = () => {
@@ -183,7 +199,7 @@ const [showSuccessPopup, setShowSuccessPopup] = useState(false);
    
 
     setCurrentStep(currentStep+1)
-// console.log("bundle------------------------------------------------------",bundle.products)
+
 
 
 console.log("Product Loader",productloader);
@@ -240,7 +256,7 @@ console.log("Product Loader",productloader);
     }
   };
   
-  // Function to close the modal
+  
   const handleCloseModal = () => {
     setShowModal(false);
     document.body.classList.remove('cart_open')
@@ -263,8 +279,7 @@ console.log("Product Loader",productloader);
   };
 
   const handleClick = (i) => {
-    // console.log(i,"iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii")
-    // console.log("DTAT-------------------",data[i])
+
     const selectedBundle = data[i];
     // setCartBundleID(selectedBundle._id);
 
@@ -303,7 +318,7 @@ console.log("Product Loader",productloader);
         console.log("ProductDetails",productDetails);
         
     
-       // Check the product names
+       
     
         const response = await fetch(
           `https://${window.location.host}/apps/bridge/api/cartbundleproducts`,
@@ -351,7 +366,7 @@ console.log("Product Loader",productloader);
     }
   };
   
-// console.log("productDetails", productDetails);
+
   useEffect(() => {
     getdata();
   }, []);
@@ -388,14 +403,19 @@ const closepopup=()=>{
   setTotalSelectedProducts(0)
 
  
-  
+}
+
+
+const Backbutton=()=>{
+  // console.log("jjjjj");
+  setShowProducts(false)
+
   
 }
 
   return (
     <>
-    {/* Main Content - Product Details or Bundle Details */}
-
+ 
 
 {loading?(
   <div className="Cart-Products-Loader"
@@ -422,9 +442,11 @@ const closepopup=()=>{
 
 
 <div className="Product-Details-container">
+
       {showProducts ? (
         <>
           {/* Progress Bar (appears when showProducts is true) */}
+          {/* <button onClick={Backbutton}>Back</button> */}
           <div className="progress-container">
   <div 
     className={`progress-steps ${currentStep === 1 ? 'current' : currentStep > 1 ? 'completed progress-steps-next' : 'upcoming'} ${currentStep >= 2 ? 'line-black' : ''}`}
@@ -432,6 +454,8 @@ const closepopup=()=>{
   >
     <div className="progress-number">1</div>
     <div className="step-title">Select Box</div>
+    <p className="back-button" onClick={Backbutton}>Back</p>
+  
   </div>
   <hr style={{ borderTop: "1px solid lightgrey" }}></hr>
   <div 
@@ -463,25 +487,17 @@ const closepopup=()=>{
     <>
       <h2 className="product-details-title">{bundle.title}</h2>
 
-      {/* Tags Section */}
+      
       <div className="product-details-tag">
-        <h3
-          className={filteredproduct.length === 0 ? "Active-Products-tags" : "Products-tags"}
-          onClick={handleShowAllProducts}
-        >
-          All Products
-        </h3>
+  <TagSlider
+    tags={tags}
+    handleTagClick={handleTagClick}
+    handleShowAllProducts={handleShowAllProducts}
+    selectedTag={selectedTag}
+  />
+</div>
 
-        {tags.map((tag) => (
-          <h3
-            key={tag}
-            className={selectedTag === tag ? "Active-Products-tags" : "Products-tags"}
-            onClick={() => handleTagClick(tag)}
-          >
-            {tag}
-          </h3>
-        ))}
-      </div>
+
 
       {/* Product List */}
       <ul className="product-details-list">
@@ -494,8 +510,15 @@ const closepopup=()=>{
                 className="product-image"
                 style={{ width: '200px', height: 'auto' }}
               />
-              <h3 className="product-name"> {product.displayName.replace(' - Default Title', '')}</h3>
-              
+              <h3 className="product-name"> {product.displayName}</h3>
+              <p>
+  {
+    (product.selectedOptions[0].value === "Default Title" && product.selectedOptions[0].name === "Title") 
+      ? ""  // Replace with an empty string if both conditions are true
+      : `${product.selectedOptions[0].name} ${product.selectedOptions[0].value}`  // Render normally otherwise
+  }
+</p>
+
               <p className="product-price">${product?.price}</p>
 
               {/* Quantity controls */}
@@ -613,7 +636,7 @@ const closepopup=()=>{
                     checked={bunch === selectedBunch}
                     onChange={() => handleBunchChange(bunch)}
                   />
-                  Bunch {index + 1}: {bunch}
+                    {bunch} items
                 </label>
               </li>
            
@@ -641,7 +664,8 @@ const closepopup=()=>{
                     </div>
 <div className="Cart-Modal-Product-Name_Price">
 <div className="Cart-Modal-Product-Name">
-                      <h3>{product.displayName} (x{quantity})</h3>
+                      <h3>{product.displayName.replace(' - Default Title', '')} (x{quantity})</h3>
+                      
 
                       <div className="Cart-Modal-Quantity-Controls">
                         <button onClick={() => handleDecrement(index)}>−</button>

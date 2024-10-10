@@ -27,6 +27,13 @@ console.log("productIds", productIds);
           id
           displayName
           price
+          selectedOptions {
+          value
+          optionValue{
+          name
+          }
+          name
+          }
           product {
             id
             tags
@@ -51,7 +58,7 @@ console.log("productIds", productIds);
     arr.push(data.data.productVariant);
   }
 
-  // const extractNumericIds = (gids) => {
+  
   //   return gids.map(gid => {
   //     const parts = gid.split('/');
   //     return parts.pop(); // This returns the last part of the array

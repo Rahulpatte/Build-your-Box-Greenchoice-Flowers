@@ -9,7 +9,7 @@ function MoonLoader({
   color = "#064b56",
   speedMultiplier = 1,
   cssOverride = {},
-  size = 30,
+  size = 40,
   ...additionalprops
 }) {
   const { value, unit } = parseLengthAndUnit(size);

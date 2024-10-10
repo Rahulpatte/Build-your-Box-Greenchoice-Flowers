@@ -84,7 +84,20 @@ try {
   
   console.log("Product Details Result", result);
 
-setProductData(result.data)
+ 
+  const updatedProducts = result.data.map(product => ({
+    ...product,
+    displayName: product.displayName
+      .replace(" - Default Title", "")   // Remove ' - Default Title'
+      .replace(/\s-\s\d+$/, "")          // Remove ' - <number>' at the end
+      .trim()                            // Trim any extra spaces
+  }));
+
+  console.log("updated products----------------",updatedProducts);
+  
+  
+
+setProductData(updatedProducts)
 setViewLoading(false)
 
 } catch (error) {
@@ -248,7 +261,7 @@ setViewLoading(false)
                    {product.displayName}
                  </span>
                  <span style={{ fontSize: '16px', color: '#666' }}>
-                   {product.price}
+                   ${product.price}
                  </span>
                </div>
              </Modal.Section>

@@ -296,3 +296,85 @@ progress[value]::-moz-progress-bar {
 .success-popup button:hover {
   background-color: #218838;
 }
+
+
+
+.product-details-tag {
+  
+  padding: 20px;
+  align-items: center;
+  justify-content: space-around;
+
+  position: relative;
+  /* height: 100px; */
+  /* margin-top: 30px; */
+  position: sticky;
+  /* top: 70px; */
+  z-index: 1;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.Products-tags,
+.Active-Products-tags {
+  cursor: pointer;
+  font-size: 16px;
+  padding: 10px;
+  text-align: center;
+}
+
+.Active-Products-tags {
+  background-color: orange;
+  color: white;
+}
+
+.Products-tags {
+  background-color: lightgray;
+  color: black;
+}
+
+
+/* Slider container styles */
+.slider-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  max-width: 100%;
+}
+
+/* Wrapping the slider */
+.slider-wrapper {
+  overflow: hidden;
+  width: 500px; /* Adjust this based on how many items should show */
+}
+
+/* Actual slider content */
+.slider {
+  display: flex;
+  transition: transform 0.5s ease-in-out;
+}
+
+/* Styling each tag in the slider */
+
+
+
+/* Slider arrow buttons */
+.slider-arrow {
+  background-color: transparent;
+  border: none;
+  font-size: 2rem;
+  cursor: pointer;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  color: black;
+}
+
+.left {
+  left: 10px;
+}
+
+.right {
+  right: 10px;
+}
