@@ -24,6 +24,14 @@ console.log("productIds", productIds);
       `#graphql
       query {
         productVariant(id: "${productIds[i]}") {
+           sellingPlanGroups(first:10) {
+      edges {
+        node {
+          id
+          name
+        }
+      }
+    }
           id
           displayName
           price

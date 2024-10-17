@@ -196,6 +196,9 @@ function Bundle() {
         },
       });
 
+
+      console.log("selected resourse picker---------------",selected)
+
       setCreateBundleLoader(true);
   
       const productDetails = selected.selection.flatMap((product) =>
