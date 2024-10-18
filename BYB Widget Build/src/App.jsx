@@ -98,15 +98,7 @@ function App() {
 
   
 
-//   productDetails.forEach(product => {
-//     if (product.sellingPlanGroups.edges.length > 0) {
-//         // Accessing the name inside sellingPlanGroups
-//         const sellingPlanName = product.sellingPlanGroups.edges[0].node.name;
-//         console.log("Selling Plan Name:", sellingPlanName);
-//     } else {
-//         console.log("No selling plan for product:", product.displayName);
-//     }
-// });
+
 
 useEffect(() => {
   // Temporary Set to store unique selling plan names
