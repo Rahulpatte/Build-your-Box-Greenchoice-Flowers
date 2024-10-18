@@ -96,7 +96,7 @@ function App() {
   }
 
 
-  console.log("productDetails-----------------------------------",productDetails)
+  
 
 //   productDetails.forEach(product => {
 //     if (product.sellingPlanGroups.edges.length > 0) {
@@ -128,11 +128,11 @@ useEffect(() => {
 
 }, [productDetails]);
 
-console.log("updatedmmmmmmmmmmmm",subscriptionlist);
 
 
 
 
+console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
   const filterProductsByTag = (tag) => {
     if (tag) {
       // Filter products based on selected tag
