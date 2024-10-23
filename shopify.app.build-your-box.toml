@@ -3,12 +3,13 @@
 client_id = "1d9e140c084b68785ec28278af0ec4c8"
 name = "Build-Your-Box"
 handle = "build-your-box-prod"
-application_url = "new.appbuildyourbox.com"
+application_url = "https://new.appbuildyourbox.com"
 embedded = true
 
 [build]
 automatically_update_urls_on_dev = true
 dev_store_url = "test-build-your-box.myshopify.com"
+include_config_on_deploy = true
 
 [access_scopes]
 # Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
@@ -16,16 +17,16 @@ scopes = "read_products,write_content,write_products"
 
 [auth]
 redirect_urls = [
-  "new.appbuildyourbox.com/auth/callback",
-  "new.appbuildyourbox.com/auth/shopify/callback",
-  "new.appbuildyourbox.com/api/auth/callback"
+  "https://new.appbuildyourbox.com/auth/callback",
+  "https://new.appbuildyourbox.com/auth/shopify/callback",
+  "https://new.appbuildyourbox.com/api/auth/callback"
 ]
 
 [webhooks]
 api_version = "2024-07"
 
 [app_proxy]
-url = "new.appbuildyourbox.com"
+url = "https://new.appbuildyourbox.com"
 subpath = "bridge"
 prefix = "apps"
 

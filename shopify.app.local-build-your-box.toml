@@ -1,0 +1,34 @@
+# Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
+
+client_id = "778dcea0d1188aae38c65c4fd4c52c98"
+name = "local build your box"
+handle = "local-build-your-box"
+application_url = "https://counter-soc-favour-shine.trycloudflare.com"
+embedded = true
+
+[build]
+automatically_update_urls_on_dev = true
+dev_store_url = "test-local-build-store.myshopify.com"
+include_config_on_deploy = true
+
+[access_scopes]
+# Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
+scopes = "read_products,write_content,write_products"
+
+[auth]
+redirect_urls = [
+  "https://counter-soc-favour-shine.trycloudflare.com/auth/callback",
+  "https://counter-soc-favour-shine.trycloudflare.com/auth/shopify/callback",
+  "https://counter-soc-favour-shine.trycloudflare.com/api/auth/callback"
+]
+
+[webhooks]
+api_version = "2024-10"
+
+[app_proxy]
+url = "https://counter-soc-favour-shine.trycloudflare.com"
+subpath = "bridge"
+prefix = "apps"
+
+[pos]
+embedded = false
