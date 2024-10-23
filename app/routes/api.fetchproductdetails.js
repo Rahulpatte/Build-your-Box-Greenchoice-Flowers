@@ -21,49 +21,99 @@ console.log("productIds", productIds);
 
   for (let i = 0; i < productIds.length; i++) {
     const response = await admin.graphql(
-      `#graphql
-      query {
-        productVariant(id: "${productIds[i]}") {
-           sellingPlanGroups(first:10) {
+      `
+      #graphql
+    #   query {
+    #     productVariant(id: "${productIds[i]}") {
+    #        sellingPlanGroups(first:10) {
+    #   edges {
+    #     node {
+    #       id
+    #       name
+    #     }
+    #   }
+    # }
+    #       id
+    #       displayName
+    #       price
+    #       selectedOptions {
+    #       value
+    #       optionValue{
+    #       name
+    #       }
+    #       name
+    #       }
+    #       product {
+    #         id
+    #         tags
+    #         description
+    #         images(first: 1) {
+    #           edges {
+    #             node {
+    #               src
+                  
+    #             }
+    #           }
+    #         }
+    #       }
+    #     }
+    #   }
+      
+    query {
+    collection(id: "${productIds[i]}") {
+      id
+      title
+      handle
+      updatedAt
+      image {
+        url
+      }
+      products(first: 10) {
       edges {
         node {
           id
-          name
-        }
-      }
-    }
-          id
-          displayName
-          price
-          selectedOptions {
-          value
-          optionValue{
-          name
+          title
+          handle
+          priceRangeV2 {
+            minVariantPrice {
+              amount
+            }
+            maxVariantPrice {
+              amount
+            }
           }
-          name
+          images(first: 1) {
+            edges {
+              node {
+                src
+                altText
+              }
+            }
           }
-          product {
-            id
-            tags
-            description
-            images(first: 1) {
-              edges {
-                node {
-                  src
-                  
-                }
+          variants(first: 1) {
+            edges {
+              node {
+                id
+                price
+                sku
               }
             }
           }
         }
-      }`,
+      }
+    }
+
+    }
+  }
+      
+      `,
       
     );
     
     const data = await response.json();
     console.log("fetchproductdata", data);
     
-    arr.push(data.data.productVariant);
+    arr.push(data.data.collection);
   }
 
   

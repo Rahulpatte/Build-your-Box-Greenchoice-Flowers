@@ -18,7 +18,7 @@ function App() {
   const [showModal, setShowModal] = useState(false);
   const [currentBunchSize, setCurrentBunchSize] = useState(null);
 
-  const [selectedTag, setSelectedTag] = useState("");
+  const [selectedCollection, setSelectedCollection] = useState("");
   const [filteredproduct, setFilteredproduct] = useState([]);
   const [currentStep, setCurrentStep] = useState(1);
 
@@ -26,14 +26,16 @@ function App() {
   const [collectionloader, setCollectionLoader] = useState(false);
   const [productloader, setProductLoader] = useState(false);
   const [modalOpenTracker, setModalOpenTracker] = useState(0);
-  const [tags, setTags] = useState([]);
-  const [showModelClassName, setShowModelClassName] = useState("");
+  const [collection, setCollections] = useState([]);
+  
   const [showCartButton, setShowCartButton] = useState(false);
-
+const[collectiondetails, setCollectionDetails]=useState([])
   const [loading, setLoading] = useState(false); // Add loading state
-  const [showSuccessPopup, setShowSuccessPopup] = useState(false);
 
-  const[subscriptionlist,setSubscriptionlist]=useState([])
+
+
+
+  console.log("lllllllllllllllllllllllllllllll")
 
   async function fetchGraphQLData(productIds) {
     setProductLoader(true);
@@ -56,35 +58,81 @@ function App() {
       const result = await response.json();
       console.log("Result---------", result);
 
-      const updatedProducts = result.map((product) => ({
-        ...product,
-        displayName: product.displayName
-          .replace(" - Default Title", "") // Remove ' - Default Title'
-          .replace(/\s-\s\d+$/, "") // Remove ' - <number>' at the end
-          .trim(), // Trim any extra spaces
-      }));
+      setCollectionDetails(result)
 
-      console.log("updatedata----------------------", updatedProducts);
+      // const updatedProducts = result.map((product) => ({
+      //   ...product,
+      //   displayName: product.displayName
+      //     .replace(" - Default Title", "") // Remove ' - Default Title'
+      //     .replace(/\s-\s\d+$/, "") // Remove ' - <number>' at the end
+      //     .trim(), // Trim any extra spaces
+      // }));
 
-      setProductDetails(updatedProducts);
+      // console.log("updatedata----------------------", updatedProducts);
 
-      let allTags = [];
+      const allProducts = [];
 
-      for (let i = 0; i < result.length; i++) {
-        if (result[i].product.tags && result[i].product.tags.length > 0) {
-          allTags = allTags.concat(result[i].product.tags);
+      // Loop through each collection
+      result.forEach((collection) => {
+        if (collection.products && Array.isArray(collection.products.edges)) {
+          // Loop through the products (edges array) in each collection
+          collection.products.edges.forEach((productEdge) => {
+            const productNode = productEdge.node;
+      
+            if (productNode && Array.isArray(productNode.variants.edges)) {
+              // Loop through each variant of the product
+              productNode.variants.edges.forEach((variantEdge) => {
+                const variantNode = variantEdge.node;
+      
+                // Combine product details with variant details
+                allProducts.push({
+                  productId: productNode.id,
+                  productTitle: productNode.title,
+                  productHandle: productNode.handle,
+                  productImage: productNode.images.edges[0]?.node?.src || '', // Get the image or empty string if not available
+                  variantId: variantNode.id,
+                  variantPrice: variantNode.price,
+                  variantSKU: variantNode.sku,
+                });
+              });
+            }
+          });
         }
+      });
+      
+      console.log("Product and variant details:", allProducts);
+      
+
+      setProductDetails(allProducts);
+
+
+      
+
+      let allcollection = [];
+
+for (let i = 0; i < result.length; i++) {
+  if (result[i]?.title) {
+    allcollection.push(result[i].title); // Push the collection title to the array
+  }
+}
+
+console.log("All Collection Titles:", allcollection);
+
+
+allcollection=[...new Set(allcollection)]
+if (!allcollection.includes("All Products")) {
+  allcollection.unshift("All Products");
       }
 
-      allTags = [...new Set(allTags)];
 
-      if (!allTags.includes("All Products")) {
-        allTags.unshift("All Products");
-      }
+
+
+
+   
 
  
 
-      setTags(allTags);
+      setCollections(allcollection);
 
       setProductLoader(false);
 
@@ -98,83 +146,105 @@ function App() {
 
   
 
-console.log('kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk')
-
-useEffect(() => {
-  // Temporary Set to store unique selling plan names
-  let tempSellingPlans = new Set();
-
-  // Loop through the productDetails array
-  for (let i = 0; i < productDetails.length; i++) {
-    const product = productDetails[i];
-
-    // Check if sellingPlanGroups has edges
-    if (product.sellingPlanGroups.edges.length > 0) {
-      const sellingPlanName = product.sellingPlanGroups.edges[0].node.name;
-      tempSellingPlans.add(sellingPlanName); // Add to the Set (ensures uniqueness)
-    }
-  }
-
-  // Set the selling plans in state as an array after the loop
-  setSubscriptionlist([...tempSellingPlans]);
-
-}, [productDetails]);
 
 
 
 
 
-console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
-  const filterProductsByTag = (tag) => {
-    if (tag) {
-      // Filter products based on selected tag
-      const filtered = productDetails.filter((item) =>
-        item.product.tags.includes(tag),
-      );
 
-      console.log("filtered products", filtered);
 
-      setFilteredproduct(filtered);
+
+ // Assuming collectionDetails is your array of collections
+// selectedCollectionTitle is the title of the collection selected by the user
+
+const filterProductsByCollection = (selectedCollectionTitle) => {
+  if (selectedCollectionTitle) {
+    // Find the collection based on the title
+    const selectedCollection = collectiondetails.find(
+      (collection) =>
+        collection.title.toLowerCase() === selectedCollectionTitle.toLowerCase()
+    );
+
+    if (selectedCollection && Array.isArray(selectedCollection.products.edges)) {
+      const filteredProducts = [];
+
+      // Loop through the products (edges array) in the selected collection
+      selectedCollection.products.edges.forEach((productEdge) => {
+        const productNode = productEdge.node;
+
+        if (productNode && Array.isArray(productNode.variants.edges)) {
+          // Loop through each variant of the product
+          productNode.variants.edges.forEach((variantEdge) => {
+            const variantNode = variantEdge.node;
+
+            // Combine product details with variant details
+            filteredProducts.push({
+              productId: productNode.id,
+              productTitle: productNode.title,
+              productHandle: productNode.handle,
+              productImage:
+                productNode.images.edges[0]?.node?.src || "", // Get the image or empty string if not available
+              variantId: variantNode.id,
+              variantPrice: variantNode.price,
+              variantSKU: variantNode.sku,
+            });
+          });
+        }
+      });
+
+      console.log("Filtered Products:", filteredProducts);
+
+      // Update the filtered products state to render the list
+      setFilteredproduct(filteredProducts);
     } else {
-      // Show all products if no tag is selected
-      setFilteredproduct(result);
+      console.log("No products found for this collection title");
     }
+  } else {
+    // If no collection is selected, show all products
+    setFilteredproduct(allProducts); // Assuming allProducts is your unfiltered list
+  }
+};
+
+
+
+  const handleTagClick = (collection) => {
+    console.log("collections", collection);
+
+   
+    setSelectedCollection(collection); 
+    filterProductsByCollection(collection); 
   };
 
-  const handleTagClick = (tag) => {
-    console.log("Tags", tag);
-
-    setSelectedTag(tag); // Update the selected tag
-    filterProductsByTag(tag); // Filter products based on the selected tag
-  };
-
-  console.log("Tags", tags);
+  // console.log("Tags", tags);
 
   const getdata = async () => {
     setCollectionLoader(true);
     try {
       let response = await fetch(
-        `https://${window.location.host}/apps/bridge/api/bundles`,
+        `https://${window.location.host}/apps/bridge/api/bundles`
       );
-      if (!response.ok)
-        throw new Error(`HTTP error! status: ${response.status}`);
-
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  
       let res = await response.json();
       console.log("RES---------------------------------", res);
+  
+      // Filter bundles with status true
+      const filteredBundles = res.filter(bundle => bundle.status);
 
-      setData(res);
 
+      console.log("filtered bundles----------", filteredBundles)
+      
+      // Set only the bundles with status true
+      setData(filteredBundles);
+  
       setCollectionLoader(false);
-
+  
       const currentUrl = window.location.href;
       const handleInUrl = currentUrl.split("/").pop();
-      console.log("Current Url---------------", currentUrl);
-
-      console.log("handleUrl ----------------------------", handleInUrl);
-
-      const foundBundle = res.find((item) => item.handle === handleInUrl);
+  
+      const foundBundle = filteredBundles.find((item) => item.handle === handleInUrl);
       console.log("foundBundle", foundBundle);
-
+  
       if (foundBundle) {
         setBundle(foundBundle);
         await fetchGraphQLData(foundBundle.products);
@@ -184,6 +254,7 @@ console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
       console.error("Error fetching bundle data:", error);
     }
   };
+  
 
   console.log("collectionLoader", collectionloader);
 
@@ -197,6 +268,8 @@ console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
     }
     setCurrentBunchSize(bunch);
   };
+
+
 
   const handleContinue = () => {
     setCurrentStep(currentStep + 1);
@@ -223,8 +296,7 @@ console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
       setShowModal(true);
     }
 
-    // console.log("jjjjjjjjjjjjjjjjjjjjjjjjjjjjjj")
-
+    
     if (index >= 0 && index < productQuantities.length) {
       if (totalSelectedProducts < selectedBunch) {
         console.log(
@@ -254,6 +326,9 @@ console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
     }
   };
 
+
+console.log("product details--------------------",productDetails)
+
   const handleCloseModal = () => {
     setShowModal(false);
     document.body.classList.remove("cart_open");
@@ -273,7 +348,7 @@ console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
     }
 
     if (totalSelectedProducts == 1) {
-      console.log("jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj");
+     
       setShowModal(false);
       document.body.classList.remove("cart_open");
     }
@@ -295,32 +370,32 @@ console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
   };
 
   const AddtoCart = async () => {
-    console.log("Add To Cart button clicked"); // Add this log to check if the button is clicked
+    console.log("Add To Cart button clicked"); 
     document.body.classList.remove("cart_open");
-
+  
     try {
-      setLoading(true);
-
-      const arr = [];
+      setLoading(true); // Show loading indicator
+  
       let product_price = 0;
       let productname = [];
       let productImages = [];
-      let selectedSellingPlanId = null;
-
+  
+      // Check if total selected products match the selected bunch
       if (totalSelectedProducts === Number(selectedBunch)) {
         productDetails.forEach((product, index) => {
           if (productQuantities[index] > 0) {
-            product_price +=
-              Number(product.price) * Number(productQuantities[index]);
+            product_price += Number(product.price) * Number(productQuantities[index]);
             productname.push(
-              product.displayName + " (x" + productQuantities[index] + ")",
+              product.displayName + " (x" + productQuantities[index] + ")"
             );
-            productImages.push(product.product.images.edges[0].node.src);
+            productImages.push(product.productImage);
           }
         });
-
+  
+        // Log product details for debugging
         console.log("ProductDetails", productDetails);
-
+  
+        // First API request: Add products to the bundle
         const response = await fetch(
           `https://${window.location.host}/apps/bridge/api/cartbundleproducts`,
           {
@@ -332,13 +407,12 @@ console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
               price: product_price,
               images: productImages,
             }),
-          },
+          }
         );
-
+  
         const data = await response.json();
-
-      
-
+  
+        // Prepare form data to add items to cart
         let formData = {
           items: [
             {
@@ -347,21 +421,13 @@ console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
               properties: {
                 items: productname.join(", "),
               },
-
-              
             },
-
-            {
-              id: data.product.variants[0].id,
-              selling_plan: 2446229792,
-              quantity: 1
-            }
-        
           ],
         };
-
-        console.log("Form Datawwwwwwwww:", formData);
-
+  
+        console.log("Form Data:", formData);
+  
+        // Second API request: Add items to cart
         await fetch(`https://${window.location.host}/cart/add`, {
           method: "POST",
           headers: {
@@ -369,17 +435,19 @@ console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
           },
           body: JSON.stringify(formData),
         });
-
-        setShowSuccessPopup(true);
+  
+        
         setShowModal(false);
-      } // Close the modal after the alert
+      }
     } catch (error) {
       console.error("Error:", error);
-      alert("Failed to add items to cart.");
+      // alert("Failed to add items to cart.");
     } finally {
-      setLoading(false);
+      setLoading(false); // Hide loading indicator
+      window.location.href = 'https://test-build-your-box.myshopify.com/cart';
     }
   };
+  
 
   useEffect(() => {
     getdata();
@@ -388,7 +456,7 @@ console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
   let totalCartPrice = 0;
 
   const handleShowAllProducts = () => {
-    setSelectedTag("");
+    setSelectedCollection("");
     setFilteredproduct([]); // Reset filteredProducts to empty
   };
 
@@ -405,21 +473,25 @@ console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
     }
   };
 
-  const closepopup = () => {
-    setShowSuccessPopup(false);
-    for (let i = 0; i < productQuantities.length; i++) {
-      productQuantities[i] = 0;
-    }
-    setTotalSelectedProducts(0);
-  };
+  // const closepopup = () => {
+  //   setShowSuccessPopup(false);
+  //   for (let i = 0; i < productQuantities.length; i++) {
+  //     productQuantities[i] = 0;
+  //   }
+  //   setTotalSelectedProducts(0);
+  // };
 
   const Backbutton = () => {
     // console.log("jjjjj");
     setShowProducts(false);
   };
+ 
 
   return (
     <>
+
+    
+
       {loading ? (
         <div
           className="Cart-Products-Loader"
@@ -441,7 +513,7 @@ console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
         </div>
       ) : (
         <>
-          {showSuccessPopup && <SuccessPopup onClose={closepopup} />}
+          {/* {showSuccessPopup && <SuccessPopup onClose={closepopup} />} */}
 
           <div className="Product-Details-container">
             {showProducts ? (
@@ -496,10 +568,10 @@ console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
 
                       <div className="product-details-tag">
                         <TagSlider
-                          tags={tags}
+                          collection={collection}
                           handleTagClick={handleTagClick}
                           handleShowAllProducts={handleShowAllProducts}
-                          selectedTag={selectedTag}
+                          selectedCollection={selectedCollection}
                         />
                       </div>
 
@@ -511,21 +583,16 @@ console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
                         ).map((product, index) => (
                           <li key={index} className="product-details-item">
                             <div className="product-detail-list-container">
-                              <img
-                                src={
-                                  product?.product?.images?.edges[0]?.node?.src
-                                }
-                                alt={
-                                  product?.product?.images?.edges[0]?.node?.alt
-                                }
-                                className="product-image"
-                                style={{ width: "200px", height: "auto" }}
-                              />
+                            <img
+            src={product.productImage}
+            className="product-image"
+            style={{ width: "200px", height: "auto" }}
+          />
                               <h3 className="product-name">
                                 {" "}
-                                {product.displayName}
+                                {product.productTitle}
                               </h3>
-                              <p className="product-details-stems">
+                              {/* <p className="product-details-stems">
                                 {
                                   product.selectedOptions[0].value ===
                                     "Default Title" &&
@@ -533,9 +600,9 @@ console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
                                     ? "" // Replace with an empty string if both conditions are true
                                     : `${product.selectedOptions[0].name} ${product.selectedOptions[0].value}` // Render normally otherwise
                                 }
-                              </p>
+                              </p> */}
 
-                              <p className="product-price">${product?.price}</p>
+                              <p className="product-price">${product.variantPrice}</p>
 
                               {/* Quantity controls */}
                               <div className="product-quantity-controls">
@@ -715,7 +782,7 @@ console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
                     {productDetails.map((product, index) => {
                       const quantity = productQuantities[index];
                       if (quantity > 0) {
-                        const itemTotal = product.price * quantity;
+                        const itemTotal = product.variantPrice * quantity;
                         totalCartPrice += itemTotal;
 
                         return (
@@ -725,12 +792,10 @@ console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
                                 <div className="Cart-Modal-Image">
                                   <img
                                     src={
-                                      product?.product?.images?.edges[0]?.node
-                                        ?.src
+                                      product.productImage
                                     }
                                     alt={
-                                      product?.product?.images?.edges[0]?.node
-                                        ?.alt
+                                      product.productTitle
                                     }
                                     style={{ width: "200px", height: "auto" }}
                                   />
@@ -738,10 +803,7 @@ console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
                                 <div className="Cart-Modal-Product-Name_Price">
                                   <div className="Cart-Modal-Product-Name">
                                     <h3>
-                                      {product.displayName.replace(
-                                        " - Default Title",
-                                        "",
-                                      )}{" "}
+                                      {product.productTitle}{" "}
                                       (x{quantity})
                                     </h3>
 
@@ -762,9 +824,12 @@ console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
                                     </div>
                                   </div>
 
+                               
+                               
+
                                   <div className="Cart-Modal-Price">
                                     <h3>${itemTotal}</h3>
-                                    <h3>${product.price}/unit</h3>
+                                    <h3>${product.variantPrice}/unit</h3>
                                   </div>
                                 </div>
                               </div>
@@ -817,7 +882,10 @@ console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
                       Add to Cart
                     </button>
 
-                    <button>Subscribe Now</button>
+                    <button onClick={() => window.location.href = 'https://test-build-your-box.myshopify.com/pages/build-your-box'}>
+  Continue Shopping
+</button>
+
                   </div>
 
                   <button

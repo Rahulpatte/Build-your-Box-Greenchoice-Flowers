@@ -14,30 +14,46 @@ export const action = async ({ request }) => {
 
     const response = await admin.graphql(
       `#graphql
-      query {
-        productVariant(id: "${productId}") {
-          id
-          displayName
-          price
-          product {
-            id
-            description
-            images(first: 1) {
-              edges {
-                node {
-                  src
-                }
-              }
-            }
-          }
-        }
-      }`
+      # query {
+      #   productVariant(id: "${productId}") {
+      #     id
+      #     displayName
+      #     price
+      #     product {
+      #       id
+      #       description
+      #       images(first: 1) {
+      #         edges {
+      #           node {
+      #             src
+      #           }
+      #         }
+      #       }
+      #     }
+      #   }
+      # }
+      
+      
+ #graphql
+ query {
+    collection(id: "${productId}") {
+      id
+      title
+      handle
+      updatedAt
+      image {
+        url
+      }
+    }
+  }
+      
+      `
     );
 
     const data = await response.json();
-    console.log("DATA", data);
+    console.log("DATA-------------------------------------", data);
     
-    arr.push(data.data.productVariant);
+    arr.push(data.data.collection);
   }
 
   // Do something with the array of product variants

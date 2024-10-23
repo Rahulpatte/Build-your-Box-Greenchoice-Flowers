@@ -61,6 +61,8 @@ function Bundle() {
   const[createBundleLoader,setCreateBundleLoader]=useState(false)
   const[editcreateBundlerLoader,setEditcreateBundlerLoader]=useState(false)
 
+  const[status,setStatus]=useState(false)
+
 
 
 
@@ -153,121 +155,199 @@ function Bundle() {
         },
         body: JSON.stringify({ productIds }), // Send product IDs to the backend
       });
+      
       const result = await response.json();
-
-      console.log("Product Details Result", result.data);
       
-      // Clean the display names by removing " - Default Title"
-      const editedproductTitles = result.data.map((product) => {
-        // Clean the title by removing both ' - Default Title' and ' - <number>'
-        const cleanedTitle = product.displayName
-          .replace(' - Default Title', '')  // Remove ' - Default Title'
-          .replace(/\s-\s\d+$/, '')         // Remove ' - <number>' at the end
-          .trim();                          // Trim any extra spaces
+      console.log("Product Data:", result.data);  // Log the specific data array
+      
+      if (result.data && Array.isArray(result.data)) {
+        // Proceed only if data exists and is an array
+        const editedProductTitles = result.data.map((product) => {
+          console.log("Mapping Product Title:", product.title); // Log each title for inspection
+          return product.title;  // Return the title
+        });
         
-        return cleanedTitle;
-      });
-      
-      const editedproductImages = result.data.map(
-        (element) => element.product.images.edges[0].node.src,
-      );
-      
-      setProductTitles(editedproductTitles);
-      setProductImages(editedproductImages);
+        const editedProductImages = result.data.map((element) => {
+          console.log("Product Handle:", element.handle); // Optional: log other fields
+          // Check if the image and its URL are valid, otherwise provide a fallback (empty string or placeholder URL)
+          return element.image?.url || ""; // Fallback to placeholder image
+        });
+  
+        // Set the titles and images correctly
+        setProductTitles(editedProductTitles);
+        setProductImages(editedProductImages);
+      } else {
+        console.error("Data format is invalid or empty.");
+      }
+  
       setLoading(false);
       
     } catch (error) {
-      // setLoading (true)
+      console.error("Error fetching GraphQL data:", error);
     }
-
-
   };
-  const resourcePicker = async (singleSelection = false) => {
-    handleInputChange()
-    try {
-      // setLoading(true); // Start loading when resource picker is opened
+
  
   
-      const selected = await shopify.resourcePicker({
-        type: "product",
-        multiple: !singleSelection,
-        filter: {
-          variants: true,
-        },
-      });
-
-
-      console.log("selected resourse picker---------------",selected)
-
-      setCreateBundleLoader(true);
   
-      const productDetails = selected.selection.flatMap((product) =>
-        product.variants.map((variant) => {
-          // Clean the title by removing both " - Default Title" and " - <number>"
-          const cleanedTitle = variant.displayName
-            .replace(' - Default Title', '')  // Remove ' - Default Title'
-            .replace(/\s-\s\d+$/, '')         // Remove ' - <number>' at the end
-            .trim();                          // Trim any extra spaces
-      
-          return {
-            title: cleanedTitle,              // Use the cleaned title here
-            variantId: variant.id,
-            productId: product.id,
-            image: product.images[0]?.originalSrc || "",
-            status: product.status,
-          };
-        })
-      );
-      
 
-      console.log("productDetails-----",productDetails)
+  // const resourcePicker = async (singleSelection = false) => {
+  //   handleInputChange()
+  //   try {
+      
+ 
   
-      const newProductIds = selected.selection
-        .map((product) =>
-          product.variants.length > 1
-            ? product.variants.map((variant) => variant.id)
-            : [product.variants[0].id]
-        )
-        .flat();
+  //     const selected = await shopify.resourcePicker({
+  //       type: "collection",
+  //       multiple: !singleSelection,
+  //       filter: {
+  //         variants: true,
+  //       },
+  //     });
 
 
-        console.log("newProductIds",newProductIds);
+  //     console.log("selected resourse picker---------------",selected)
+
+  //     setCreateBundleLoader(true);
+  
+  //     const productDetails = selected.selection.flatMap((product) =>
+  //       product.variants.map((variant) => {
+          
+  //         const cleanedTitle = variant.displayName
+  //           .replace(' - Default Title', '')  
+  //           .replace(/\s-\s\d+$/, '')         
+  //           .trim();                          
+      
+  //         return {
+  //           title: cleanedTitle,              
+  //           variantId: variant.id,
+  //           productId: product.id,
+  //           // image: product.images[0]?.originalSrc || "",
+  //           status: product.status,
+  //         };
+  //       })
+  //     );
+      
+
+  //     console.log("productDetails-----",productDetails)
+  
+  //     const newProductIds = selected.selection
+  //       .map((product) =>
+  //         product.variants.length > 1
+  //           ? product.variants.map((variant) => variant.id)
+  //           : [product.variants[0].id]
+  //       )
+  //       .flat();
+
+
+  //       console.log("newProductIds",newProductIds);
         
   
-      if (collectionId !== 0) {
-        // Edit mode
-      // Still loading while fetching GraphQL data
+  //     if (collectionId !== 0) {
+   
      
   
-        const mergedProductIds = [...editedproductIds, ...newProductIds];
+  //       const mergedProductIds = [...editedproductIds, ...newProductIds];
   
-        await fetchGraphQLData(mergedProductIds);
+  //       await fetchGraphQLData(mergedProductIds);
        
   
-        setProductIds(mergedProductIds);
-        const mergedProductDetails = [
-          ...editedproductIds.map((id, index) => ({
-            title: productTitles[index],
-            image: productImages[index],
-          })),
-          ...productDetails,
-        ];
+  //       setProductIds(mergedProductIds);
+  //       const mergedProductDetails = [
+  //         ...editedproductIds.map((id, index) => ({
+  //           title: productTitles[index],
+  //           image: productImages[index],
+  //         })),
+  //         ...productDetails,
+  //       ];
   
-        setProductTitles(mergedProductDetails.map((product) => product.title));
-        setProductImages(mergedProductDetails.map((product) => product.image));
+  //       setProductTitles(mergedProductDetails.map((product) => product.title));
+  //       setProductImages(mergedProductDetails.map((product) => product.image));
 
-      } else {
-        setProductIds(newProductIds);
-        setProductTitles(productDetails.map((product) => product.title));
-        setProductImages(productDetails.map((product) => product.image));
-      }
+  //     } else {
+  //       setProductIds(newProductIds);
+  //       setProductTitles(productDetails.map((product) => product.title));
+  //       setProductImages(productDetails.map((product) => product.image));
+  //     }
   
-      // setLoading(false); // Stop loading once products are loaded
+    
+  //     setCreateBundleLoader(false);
+  
+  //     return selected.selection;
+  //   } catch (error) {
+  //     // setLoading(false); // Stop loading in case of an error
+  //     console.error("Error picking resources:", error);
+  //     setGeneralError("Failed to pick resources.");
+  //     setCreateBundleLoader(false);
+  //     return null;
+  //   }
+  // };
+
+
+  console.log('llllllllllllllllllllllllllllllllllllllllllllllllllllllll')
+  
+  const resourcePicker = async (singleSelection = false) => {
+    handleInputChange();
+    try {
+      const selected = await shopify.resourcePicker({
+        type: "collection",
+        multiple: !singleSelection,
+        filter: {},
+      });
+  
+      console.log("Selected Collections: ", selected);
+  
+      setCreateBundleLoader(true);
+  
+      // Extract collection details
+      const collectionDetails = selected.selection.map((collection) => ({
+        title: collection.title,
+        handle: collection.handle,
+        collectionId: collection.id,
+        productsCount: collection.productsCount,
+        image: collection.image?.originalSrc || "", // Use placeholder if no image
+        updatedAt: collection.updatedAt,
+      }));
+  
+      console.log("Collection Details: ", collectionDetails);
+  
+      const newCollectionIds = selected.selection.map(
+        (collection) => collection.id
+      );
+  
+      console.log("New Collection IDs: ", newCollectionIds);
+
+      if(collectionId!==0){
+        const mergedProductIds = [...editedproductIds, ...newCollectionIds];
+  
+              await fetchGraphQLData(mergedProductIds);
+
+              setProductIds(mergedProductIds);
+                    const mergedProductDetails = [
+                      ...editedproductIds.map((id, index) => ({
+                        title: productTitles[index],
+                        image: productImages[index],
+                      })),
+                      ...collectionDetails,
+                    ];
+
+                    console.log("collection product titles",mergedProductDetails)
+
+                    setProductTitles(mergedProductDetails.map((collection) => collection.title));
+                          setProductImages(mergedProductDetails.map((collection) => collection.image));
+             
+      }else {
+              setProductIds(newCollectionIds);
+              setProductTitles(collectionDetails.map((collection) => collection.title));
+              setProductImages(collectionDetails.map((collection) => collection.image));
+            }
+  
+      // Update state with new collections
+
       setCreateBundleLoader(false);
   
       return selected.selection;
     } catch (error) {
-      // setLoading(false); // Stop loading in case of an error
       console.error("Error picking resources:", error);
       setGeneralError("Failed to pick resources.");
       setCreateBundleLoader(false);
@@ -276,6 +356,7 @@ function Bundle() {
   };
   
 
+ 
 
   // ------------------------------------Pagination--------------------------------------------------------------
 
@@ -287,6 +368,8 @@ const startIndex = (currentPage - 1) * itemsPerPage;
 const endIndex = startIndex + itemsPerPage;
 
 // Get the bundles to display on the current page
+console.log("products titles-------------------",productTitles)
+
 const paginatedTitles = productTitles.slice(startIndex, endIndex);
 
 // Pagination handler
@@ -335,8 +418,8 @@ const handlePreviousPage = useCallback(() => {
             ); // Example: Set bunches
             fetchGraphQLData(bundle.products || []);
             setEditedProductIds(bundle.products || []);
-            console.log("productsids", bundle.products);
-            console.log("EditedBundleLoader",editcreateBundlerLoader);
+            // console.log("productsids", bundle.products);
+            // console.log("EditedBundleLoader",editcreateBundlerLoader);
             
             
            setEditcreateBundlerLoader(false)
@@ -355,6 +438,14 @@ const handlePreviousPage = useCallback(() => {
     return () => console.log("BUNDLE_UNMOUNTED");
   }, [collectionId]);
   console.log("EditedBundleLoader",editcreateBundlerLoader);
+
+
+  useEffect(() => {
+    console.log("--------------------", productTitles);
+  }, [productTitles]);
+
+
+
 
   const handleDropZoneDrop = useCallback(
     (_dropFiles, acceptedFiles, _rejectedFiles) => {
@@ -496,6 +587,7 @@ const handlePreviousPage = useCallback(() => {
       bunches: selectedBunches.map((option) => option.value),
       products: productsToUpdate, // Use existing products if no new ones are selected
       handle,
+      status
     };
     console.log("updatedData", updatedData);
   
@@ -632,33 +724,57 @@ const handlePreviousPage = useCallback(() => {
 const { selectedResources, allResourcesSelected, handleSelectionChange } =
   useIndexResourceState(productIds);
 
+
+  
+// const rows = paginatedTitles.map((title, index) => (
+//   <IndexTable.Row
+//     id={actualIndex(index).toString()} // Use the actual index here
+//     key={actualIndex(index)}
+//     selected={selectedResources.includes(actualIndex(index).toString())} // Use the actual index here
+//     position={actualIndex(index)} // Position with the actual index
+//   >
+//     <IndexTable.Cell>{actualIndex(index) + 1}</IndexTable.Cell> {/* Display actual index + 1 */}
+//     <IndexTable.Cell>
+//       <Thumbnail source={productImages[actualIndex(index)]} alt={title} />
+//     </IndexTable.Cell>
+//     <IndexTable.Cell>{title}</IndexTable.Cell>
+//     {/* <IndexTable.Cell>{productStatus[actualIndex(index)]}</IndexTable.Cell> */}
+//     <IndexTable.Cell>
+//       <InlineStack gap="500">
+       
+//         {/* <EditIcon/> */}
+//         <Button onClick={() => handleDelete(actualIndex(index))}>Delete</Button>
+//       </InlineStack>
+//     </IndexTable.Cell>
+//   </IndexTable.Row>
+// ));
+
+
+
+// -------------------------------------Products table----------------------------------------
+ 
 const rows = paginatedTitles.map((title, index) => (
   <IndexTable.Row
-    id={actualIndex(index).toString()} // Use the actual index here
+    id={actualIndex(index).toString()}
     key={actualIndex(index)}
-    selected={selectedResources.includes(actualIndex(index).toString())} // Use the actual index here
-    position={actualIndex(index)} // Position with the actual index
+    selected={selectedResources.includes(actualIndex(index).toString())}
+    position={actualIndex(index)}
   >
-    <IndexTable.Cell>{actualIndex(index) + 1}</IndexTable.Cell> {/* Display actual index + 1 */}
+    <IndexTable.Cell>{actualIndex(index) + 1}</IndexTable.Cell> {/* Display index */}
     <IndexTable.Cell>
-      <Thumbnail source={productImages[actualIndex(index)]} alt={title} />
+      <Thumbnail source={productImages[actualIndex(index)]} alt={title} /> {/* Use collection image */}
     </IndexTable.Cell>
-    <IndexTable.Cell>{title}</IndexTable.Cell>
-    {/* <IndexTable.Cell>{productStatus[actualIndex(index)]}</IndexTable.Cell> */}
+    <IndexTable.Cell>{title}</IndexTable.Cell> {/* Display collection title */}
     <IndexTable.Cell>
       <InlineStack gap="500">
-       
-        {/* <EditIcon/> */}
-        <Button onClick={() => handleDelete(actualIndex(index))}>Delete</Button>
+        <Button onClick={() => handleDelete(actualIndex(index))}>Delete</Button> {/* Handle delete */}
       </InlineStack>
     </IndexTable.Cell>
   </IndexTable.Row>
 ));
 
 
-
-// -------------------------------------Products table----------------------------------------
-  const totalPages = Math.ceil(productTitles.length / itemsPerPage); 
+const totalPages = Math.ceil(productTitles.length / itemsPerPage); 
   return (
     <>
 
@@ -797,7 +913,7 @@ editcreateBundlerLoader ? (
           </div>
           <div>
             <Button onClick={() => resourcePicker(false)}>
-              Choose Products for this Bundle
+              Choose collection for this Bundle
             </Button>
           </div>
 
@@ -813,25 +929,45 @@ editcreateBundlerLoader ? (
               <Spinner accessibilityLabel="Loading products" size="large" />
             </div>
           ) : (
-            <IndexTable
-              resourceName={resourceName}
-              itemCount={productTitles.length}
-              selectedItemsCount={
-                allResourcesSelected ? "All" : selectedResources.length
-              }
-              loading={loading}
-              onSelectionChange={handleSelectionChange}
-              headings={[
-                { title: "ID" },
-                { title: "Image" },
-                { title: "Title" },
-                { title: "Actions" },
-              ]}
-              selectable={false}
-              bulkActions={[]}
-            >
-              {rows}
-            </IndexTable>
+            // <IndexTable
+            //   resourceName={resourceName}
+            //   itemCount={productTitles.length}
+            //   selectedItemsCount={
+            //     allResourcesSelected ? "All" : selectedResources.length
+            //   }
+            //   loading={loading}
+            //   onSelectionChange={handleSelectionChange}
+            //   headings={[
+            //     { title: "ID" },
+            //     { title: "Image" },
+            //     { title: "Title" },
+            //     { title: "Actions" },
+            //   ]}
+            //   selectable={false}
+            //   bulkActions={[]}
+            // >
+            //   {rows}
+            // </IndexTable>
+<IndexTable
+  resourceName={{ singular: 'collection', plural: 'collections' }}
+  itemCount={productTitles.length} // Number of collections
+  selectedItemsCount={allResourcesSelected ? "All" : selectedResources.length}
+  loading={loading}
+  onSelectionChange={handleSelectionChange}
+  headings={[
+    { title: "ID" },
+    { title: "Image" }, // Thumbnail for the collection
+    { title: "Title" }, // Collection title
+    { title: "Actions" }, // Actions for the collection (e.g., Delete)
+  ]}
+  selectable={false}
+  bulkActions={[]}
+>
+  {rows} {/* Render the collection rows */}
+</IndexTable>
+
+
+
           )}
 
           <div style={{ display: "flex", justifyContent: "flex-end" }}>
@@ -950,7 +1086,7 @@ editcreateBundlerLoader ? (
                 </div>
                 <div>
                   <Button onClick={() => resourcePicker(false)}>
-                    Choose Products for this Bundle
+                    Choose Collection for this Bundle
                   </Button>
                 </div>
                 {createBundleLoader ? (
@@ -973,6 +1109,7 @@ editcreateBundlerLoader ? (
         { title: "Actions" },
       ]}
       selectable={false}
+      // loading={loading}
       bulkActions={[]}
     >
       {rows}

@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { IndexTable, Card, Page, Button, Thumbnail, Modal, TextContainer, Toast, Frame, ButtonGroup,Spinner ,InlineStack,Text,Pagination} from '@shopify/polaris';
 import { useNavigate } from '@remix-run/react';
+import '../css/customStyles.css'
 
 export default function CollectionsTable({ productId }) {
   const [bundles, setBundles] = useState([]);
@@ -12,6 +13,8 @@ export default function CollectionsTable({ productId }) {
   const [bundleIndex, setBundleIndex] = useState(null);
   const navigate = useNavigate();
 const[productData,setProductData] = useState([]);
+const [bundlestatus,setBundleStatus]=useState(false)
+
 
 
 
@@ -51,10 +54,9 @@ const handlePreviousPage = useCallback(() => {
 
 
 
-
-
-
   
+const [isToggled, setIsToggled] = useState(false);
+
 
 
 
@@ -87,7 +89,7 @@ try {
  
   const updatedProducts = result.data.map(product => ({
     ...product,
-    displayName: product.displayName
+    displayName: product.title
       .replace(" - Default Title", "")   // Remove ' - Default Title'
       .replace(/\s-\s\d+$/, "")          // Remove ' - <number>' at the end
       .trim()                            // Trim any extra spaces
@@ -157,7 +159,94 @@ setViewLoading(false)
     fetchBundles();
   }, [productId]);
 
-  console.log('bundles',bundles[9]);
+  // console.log('bundles',bundles[9]);
+
+  const handleToggle = async (bundleId) => {
+    console.log("bundleID", bundleId);
+  
+    // Find the bundle that matches the bundleId
+    const bundleToToggle = bundles.find(bundle => bundle._id === bundleId);
+  
+    if (bundleToToggle) {
+      // Toggle the status immediately for the UI
+      const updatedStatus = !bundleToToggle.status; // Assuming status is a boolean
+  
+      // Create an updated bundle object
+      const updatedBundle = {
+        ...bundleToToggle,
+        status: updatedStatus,
+      };
+  
+      // Optimistically update the local state
+      setBundles(prevBundles => 
+        prevBundles.map(bundle => 
+          bundle._id === bundleId ? updatedBundle : bundle
+        )
+      );
+  
+      try {
+        // Update the status in your database
+        await fetch(`/api/product/${bundleId}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(updatedBundle),
+        });
+  
+        console.log(`Bundle ${bundleId} status updated to ${updatedStatus}.`);
+      } catch (error) {
+        console.error('Error updating bundle status:', error);
+  
+        // Revert the change if the API call fails
+        setBundles(prevBundles => 
+          prevBundles.map(bundle => 
+            bundle._id === bundleId ? bundleToToggle : bundle
+          )
+        );
+      }
+    } else {
+      console.error('Bundle not found');
+    }
+  };
+  // const toggleBundleStatus = async (bundleId) => {
+  //   try {
+  //     // Find the bundle by ID
+  //     const bundleToUpdate = bundles.find(bundle => bundle._id === bundleId);
+      
+  //     if (bundleToUpdate) {
+  //       // Create a copy of the bundle with the toggled status
+  //       const updatedBundle = {
+  //         ...bundleToUpdate,
+  //         // Assuming the status is a boolean, toggle it here
+  //         status: !bundleToUpdate.status,
+  //       };
+  
+  //       // Update the status in your database (you might have an API endpoint for this)
+  //       await fetch(`/api/bundles/${bundleId}`, {
+  //         method: 'PUT',
+  //         headers: {
+  //           'Content-Type': 'application/json',
+  //         },
+  //         body: JSON.stringify(updatedBundle),
+  //       });
+  
+  //       // Optionally, update the local state to reflect the changes
+  //       setBundles(prevBundles => 
+  //         prevBundles.map(bundle => 
+  //           bundle._id === bundleId ? updatedBundle : bundle
+  //         )
+  //       );
+  
+  //       console.log(`Bundle ${bundleId} status updated successfully.`);
+  //     } else {
+  //       console.error('Bundle not found');
+  //     }
+  //   } catch (error) {
+  //     console.error('Error updating bundle status:', error);
+  //   }
+  // };
+  
 
   const handleviewbundle=(index)=>{
     console.log("index",index);
@@ -208,10 +297,20 @@ setViewLoading(false)
       <IndexTable.Cell>{bundle.title}</IndexTable.Cell>
       <IndexTable.Cell>{bundle.bunches.join(', ')}</IndexTable.Cell>
       <IndexTable.Cell>{bundle.products.length}</IndexTable.Cell>
+      <IndexTable.Cell>    <div className="toggle-container">
+      <label className="switch">
+        <input type="checkbox" checked={bundle.status} onChange={()=>handleToggle(bundle._id)} />
+        <span className="slider"></span>
+      </label>
+    </div>
+</IndexTable.Cell>
       {/* <IndexTable.Cell>{new Date(bundle.createdAt).toLocaleString()}</IndexTable.Cell> */}
       <IndexTable.Cell>
         <div style={{display: 'flex', justifyContent: 'center' ,alignItems: 'center'}}>
         <InlineStack gap="500">
+       
+
+    
       <Button onClick={() => handleEditBundle(bundle)}>Edit</Button>
         <Button destructive onClick={() => confirmDeleteBundle(bundle._id)}>Delete</Button>
         <Button onClick={() => handleviewbundle(index)}>Preview</Button>
@@ -232,7 +331,7 @@ setViewLoading(false)
      <Frame>
        <Modal
          open={viewproductsactive}
-         title="Products"
+         title="Collections"
          onClose={handleviewproductsChange}
        >
          {viewloading ? (
@@ -244,28 +343,36 @@ setViewLoading(false)
 
            
          ) : (
-           productData.map((product, index) => (
-             <Modal.Section key={index}>
-               <div style={{ display: 'flex', alignItems: 'center', marginRight: '24px', justifyContent: 'space-between' }}>
-                 <img
-                   src={product.product.images.edges[0].node.src}
-                   alt={product.displayName}
-                   style={{
-                     width: '50px',
-                     height: '50px',
-                     borderRadius: '10px',
-                     marginRight: '16px',
-                   }}
-                 />
-                 <span style={{ fontSize: '18px', fontWeight: 'bold' }}>
-                   {product.displayName}
-                 </span>
-                 <span style={{ fontSize: '16px', color: '#666' }}>
-                   ${product.price}
-                 </span>
-               </div>
-             </Modal.Section>
-           ))
+          productData.map((product, index) => (
+            <Modal.Section key={index}>
+              <div style={{ display: 'flex', alignItems: 'center', marginRight: '24px', justifyContent: 'space-between' }}>
+                
+                {/* Only display the image if the product.image and product.image.url are valid */}
+                {product.image?.url ? (
+                  <img
+                    src={product.image.url}
+                    alt={product.displayName || 'Product Image'}
+                    style={{
+                      width: '50px',
+                      height: '50px',
+                      borderRadius: '10px',
+                      marginRight: '16px',
+                    }}
+                  />
+                ) : (
+                  <div style={{ width: '50px', height: '50px', marginRight: '16px' }}>
+                    { "No image"/* You can either leave this blank or add a placeholder here if needed */}
+                  </div>
+                )}
+                
+                <span style={{ fontSize: '18px', fontWeight: 'bold' }}>
+                  {product.displayName}
+                </span>
+                
+              </div>
+            </Modal.Section>
+          ))
+          
          )}
        </Modal>
      </Frame>
@@ -307,7 +414,8 @@ setViewLoading(false)
       { title: 'Image',  },
       { title: 'Title',  },
       { title: 'Bunches',  },
-      { title: 'Products',  },
+      { title: 'Collections',  },
+      { title: 'Status',  },
       { title: 'Actions', alignment: 'center' },
     ]}
     selectable={false}
