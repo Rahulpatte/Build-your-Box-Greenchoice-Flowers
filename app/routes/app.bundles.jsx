@@ -246,7 +246,7 @@ setViewLoading(false)
   //     console.error('Error updating bundle status:', error);
   //   }
   // };
-  
+  console.log("pppppppppppppppppppppppppppppppppppppppppppppppppppp")
 
   const handleviewbundle=(index)=>{
     console.log("index",index);
