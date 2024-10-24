@@ -30,6 +30,7 @@ const BunchSelector = ({ bunches, selectedBunch, onBunchChange, onContinue }) =>
           </div>
         ))}
       </form>
+      {/* <input className='bunhes-text' type='text' placeholder=''/> */}
       <button className='btn btn--primary' onClick={onContinue} disabled={!selectedBunch}>
         Continue
       </button>

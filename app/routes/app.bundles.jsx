@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { IndexTable, Card, Page, Button, Thumbnail, Modal, TextContainer, Toast, Frame, ButtonGroup,Spinner ,InlineStack,Text,Pagination} from '@shopify/polaris';
+import { IndexTable, Card, Page, Button, Thumbnail, Modal, TextContainer, Toast, Frame, ButtonGroup,Spinner ,InlineStack,Text,Pagination,DataTable} from '@shopify/polaris';
 import { useNavigate } from '@remix-run/react';
 import '../css/customStyles.css'
 
@@ -14,6 +14,7 @@ export default function CollectionsTable({ productId }) {
   const navigate = useNavigate();
 const[productData,setProductData] = useState([]);
 const [bundlestatus,setBundleStatus]=useState(false)
+const[bundleproducts,setBundleProducts]=useState(0)
 
 
 
@@ -79,7 +80,7 @@ try {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ productIds }), // Send product IDs to the backend
+      body: JSON.stringify({ productIds }), 
     },
   );
   const result = await response.json();
@@ -92,10 +93,10 @@ try {
     displayName: product.title
       .replace(" - Default Title", "")   // Remove ' - Default Title'
       .replace(/\s-\s\d+$/, "")          // Remove ' - <number>' at the end
-      .trim()                            // Trim any extra spaces
+      .trim()                            
   }));
 
-  console.log("updated products----------------",updatedProducts);
+ 
   
   
 
@@ -146,7 +147,7 @@ setViewLoading(false)
         const data = await response.json();
       
         
-        console.log("data",data);
+        // console.log("data",data[0].products.length);
         
         setBundles(data);
         setLoading(false);
@@ -177,7 +178,6 @@ setViewLoading(false)
         status: updatedStatus,
       };
   
-      // Optimistically update the local state
       setBundles(prevBundles => 
         prevBundles.map(bundle => 
           bundle._id === bundleId ? updatedBundle : bundle
@@ -185,7 +185,7 @@ setViewLoading(false)
       );
   
       try {
-        // Update the status in your database
+
         await fetch(`/api/product/${bundleId}`, {
           method: 'PUT',
           headers: {
@@ -254,7 +254,7 @@ setViewLoading(false)
     const actualIndex = index + ((currentPage - 1) * itemsPerPage);
     console.log("actualindex",actualIndex);
     
-
+console.log('data----------------',bundles[actualIndex].products.length)
     setBundleIndex(actualIndex);
     // console.log("bundles",bundles);
     console.log("bundles",bundles[index]);
@@ -323,10 +323,42 @@ setViewLoading(false)
     </IndexTable.Row>
   ));
   const totalPages = Math.ceil(bundles.length / itemsPerPage); 
+  console.log("product data--------------",productData)
+
+
+  
+
+
+
+
+
+
+
+
+
+  // const rows = productData.map((product, index) => [
+  //   product.displayName || 'Unnamed Product',
+  //   product.image?.url ? (
+  //     <img
+  //       src={product.image.url}
+  //       alt={product.displayName || 'Product Image'}
+  //       style={{
+  //         width: '50px',
+  //         height: '50px',
+  //         borderRadius: '10px',
+  //       }}
+  //     />
+  //   ) : (
+  //     'No image'
+  //   ),
+  //   product.products?.edges?.length || 0,
+  // ]);
+
 
   return (
 <>
-{viewproductsactive && (
+{
+viewproductsactive && (
    <div style={{height: '0px'}}>
      <Frame>
        <Modal
@@ -343,41 +375,37 @@ setViewLoading(false)
 
            
          ) : (
-          productData.map((product, index) => (
-            <Modal.Section key={index}>
-              <div style={{ display: 'flex', alignItems: 'center', marginRight: '24px', justifyContent: 'space-between' }}>
-                
-                {/* Only display the image if the product.image and product.image.url are valid */}
-                {product.image?.url ? (
-                  <img
-                    src={product.image.url}
-                    alt={product.displayName || 'Product Image'}
-                    style={{
-                      width: '50px',
-                      height: '50px',
-                      borderRadius: '10px',
-                      marginRight: '16px',
-                    }}
-                  />
-                ) : (
-                  <div style={{ width: '50px', height: '50px', marginRight: '16px' }}>
-                    { "No image"/* You can either leave this blank or add a placeholder here if needed */}
-                  </div>
-                )}
-                
-                <span style={{ fontSize: '18px', fontWeight: 'bold' }}>
-                  {product.displayName}
-                </span>
-                
-              </div>
-            </Modal.Section>
-          ))
+          <Modal.Section>
+  <DataTable
+    columnContentTypes={['text', 'text', 'numeric']}
+    headings={['Collection Image', 'Collection Title', 'No of Products']}
+    rows={productData.map((product) => [
+      product.image?.url ? (
+        <img
+          src={product.image.url}
+          alt={product.displayName || 'Product Image'}
+          style={{
+            width: '50px',
+            height: '50px',
+            borderRadius: '10px',
+          }}
+        />
+      ) : (
+        'No image'
+      ),
+      product.displayName || 'Unnamed Product',
+      product.products?.edges?.length || 0,
+    ])}
+  />
+</Modal.Section>
+
           
          )}
        </Modal>
      </Frame>
    </div>
-)}
+)
+}
 
 
     <Frame>

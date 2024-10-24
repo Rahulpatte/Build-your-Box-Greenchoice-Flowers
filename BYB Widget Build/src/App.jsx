@@ -335,7 +335,7 @@ console.log("product details--------------------",productDetails)
     setModalOpenTracker((prev) => prev + 1);
   };
 
-  console.log("ModalOpenTracker", modalOpenTracker);
+  // console.log("ModalOpenTracker", modalOpenTracker);
 
   // console.log("ShowModal", showModal);
 
@@ -354,7 +354,9 @@ console.log("product details--------------------",productDetails)
     }
   };
 
-  console.log("total Products", totalSelectedProducts);
+  // console.log("total Products", totalSelectedProducts);
+
+
 
   const handleClick = (i) => {
     const selectedBundle = data[i];
@@ -369,6 +371,8 @@ console.log("product details--------------------",productDetails)
     window.open(url, "_self"); // Use "_self" to open in the same tab
   };
 
+ console.log('iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii',productDetails)
+
   const AddtoCart = async () => {
     console.log("Add To Cart button clicked"); 
     document.body.classList.remove("cart_open");
@@ -379,14 +383,14 @@ console.log("product details--------------------",productDetails)
       let product_price = 0;
       let productname = [];
       let productImages = [];
-  
+ 
       // Check if total selected products match the selected bunch
       if (totalSelectedProducts === Number(selectedBunch)) {
         productDetails.forEach((product, index) => {
           if (productQuantities[index] > 0) {
-            product_price += Number(product.price) * Number(productQuantities[index]);
+            product_price += Number(product.variantPrice) * Number(productQuantities[index]);
             productname.push(
-              product.displayName + " (x" + productQuantities[index] + ")"
+              product.productTitle + " (x" + productQuantities[index] + ")"
             );
             productImages.push(product.productImage);
           }
@@ -473,13 +477,7 @@ console.log("product details--------------------",productDetails)
     }
   };
 
-  // const closepopup = () => {
-  //   setShowSuccessPopup(false);
-  //   for (let i = 0; i < productQuantities.length; i++) {
-  //     productQuantities[i] = 0;
-  //   }
-  //   setTotalSelectedProducts(0);
-  // };
+
 
   const Backbutton = () => {
     // console.log("jjjjj");
@@ -858,7 +856,11 @@ console.log("product details--------------------",productDetails)
                           : "Complete-Box"
                     }
                   >
-                    <button onClick={AddtoCart}>Complete Your Box</button>
+                    <button className="complete_box_btn" onClick={AddtoCart}>Complete Your Box</button>
+                    <button className="continue shopping button " onClick={() => window.location.href = 'https://test-build-your-box.myshopify.com/pages/build-your-box'}>
+  Continue Shopping
+</button>
+
                     {console.log(
                       "fffffffffffffffffffffffffff",
                       totalSelectedProducts < Number(selectedBunch),
@@ -882,10 +884,7 @@ console.log("product details--------------------",productDetails)
                       Add to Cart
                     </button>
 
-                    <button onClick={() => window.location.href = 'https://test-build-your-box.myshopify.com/pages/build-your-box'}>
-  Continue Shopping
-</button>
-
+ 
                   </div>
 
                   <button

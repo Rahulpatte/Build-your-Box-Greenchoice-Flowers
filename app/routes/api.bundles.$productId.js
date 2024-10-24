@@ -12,7 +12,7 @@ export const loader = async ({ request, params }) => {
 
 const bundles = await CollectionsModel.findOne({_id: productId})
   
-    console.log("BUNDLES: ", bundles)
+    // console.log("BUNDLES: ", bundles)
     return json(bundles);
   } catch (error) {
     console.error('Error fetching bundles:', error);

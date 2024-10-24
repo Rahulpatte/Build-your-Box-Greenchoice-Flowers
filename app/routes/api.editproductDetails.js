@@ -44,6 +44,40 @@ export const action = async ({ request }) => {
       image {
         url
       }
+      products(first: 10) {
+      edges {
+        node {
+          id
+          title
+          handle
+          priceRangeV2 {
+            minVariantPrice {
+              amount
+            }
+            maxVariantPrice {
+              amount
+            }
+          }
+          images(first: 1) {
+            edges {
+              node {
+                src
+                altText
+              }
+            }
+          }
+          variants(first: 1) {
+            edges {
+              node {
+                id
+                price
+                sku
+              }
+            }
+          }
+        }
+      }
+    }
     }
   }
       

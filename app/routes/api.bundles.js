@@ -9,7 +9,7 @@ export const loader = async ({ request }) => {
 
 
     const bundles = await CollectionsModel.find({});
-    console.log("bundlesppppppppppppppppppppppppppppppp",bundles);
+    // console.log("bundlesppppppppppppppppppppppppppppppp",bundles);
     
     return json(bundles);
   } catch (error) {
