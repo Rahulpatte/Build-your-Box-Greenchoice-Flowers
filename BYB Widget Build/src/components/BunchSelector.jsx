@@ -10,6 +10,7 @@ const BunchSelector = ({ bunches, selectedBunch, onBunchChange, onContinue }) =>
   }, [bunches, selectedBunch, onBunchChange]);
   console.log("Selected Bunch",selectedBunch);
   
+  console.log("qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq")
 
   return (
     <div className="bunches">
@@ -30,7 +31,10 @@ const BunchSelector = ({ bunches, selectedBunch, onBunchChange, onContinue }) =>
           </div>
         ))}
       </form>
-      {/* <input className='bunhes-text' type='text' placeholder=''/> */}
+      <div className='bunch-placeholder'>
+      <input className='bunhes-text' type='text' placeholder=''/>
+      </div>
+      
       <button className='btn btn--primary' onClick={onContinue} disabled={!selectedBunch}>
         Continue
       </button>

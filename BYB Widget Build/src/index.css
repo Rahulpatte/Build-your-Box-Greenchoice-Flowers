@@ -378,3 +378,10 @@ progress[value]::-moz-progress-bar {
 .right {
   right: 10px;
 }
+
+.bunhes-text{
+  width: 55%;
+  height: 60px;
+  margin-bottom: 10px;
+
+}
