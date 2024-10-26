@@ -1,6 +1,7 @@
-import React, { useEffect } from 'react';
+import React, { useEffect,useState } from 'react';
 
-const BunchSelector = ({ bunches, selectedBunch, onBunchChange, onContinue }) => {
+const BunchSelector = ({ bunches, selectedBunch, onBunchChange, onContinue ,onInputChange}) => {
+  const [inputValue, setInputValue] = useState('');
   
   // Set the first bunch as selected by default on mount
   useEffect(() => {
@@ -10,7 +11,14 @@ const BunchSelector = ({ bunches, selectedBunch, onBunchChange, onContinue }) =>
   }, [bunches, selectedBunch, onBunchChange]);
   console.log("Selected Bunch",selectedBunch);
   
-  console.log("qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq")
+  console.log("llllllllllllllllllllllllllllllllllllllllll")
+
+
+  const handleInputChange = (event) => {
+    const value = event.target.value;
+    setInputValue(value); // Update the state
+    onInputChange(value);  // Pass the input value to the parent
+  };
 
   return (
     <div className="bunches">
@@ -32,7 +40,13 @@ const BunchSelector = ({ bunches, selectedBunch, onBunchChange, onContinue }) =>
         ))}
       </form>
       <div className='bunch-placeholder'>
-      <input className='bunhes-text' type='text' placeholder=''/>
+        <input
+          className='bunhes-text'
+          type='text'
+          placeholder='Enter additional details'
+          value={inputValue}
+          onChange={handleInputChange}
+        />
       </div>
       
       <button className='btn btn--primary' onClick={onContinue} disabled={!selectedBunch}>

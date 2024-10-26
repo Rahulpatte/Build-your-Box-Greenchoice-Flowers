@@ -136,8 +136,8 @@ setViewLoading(false)
   };
 
   const confirmDeleteBundle = (bundleId) => {
-    setBundleToDelete(bundleId);  // Set bundle to delete
-    toggleDeleteModal();          // Open the modal
+    setBundleToDelete(bundleId);  
+    toggleDeleteModal();          
   };
 
   useEffect(() => {
@@ -147,7 +147,7 @@ setViewLoading(false)
         const data = await response.json();
       
         
-        // console.log("data",data[0].products.length);
+        
         
         setBundles(data);
         setLoading(false);
@@ -336,23 +336,7 @@ console.log('data----------------',bundles[actualIndex].products.length)
 
 
 
-  // const rows = productData.map((product, index) => [
-  //   product.displayName || 'Unnamed Product',
-  //   product.image?.url ? (
-  //     <img
-  //       src={product.image.url}
-  //       alt={product.displayName || 'Product Image'}
-  //       style={{
-  //         width: '50px',
-  //         height: '50px',
-  //         borderRadius: '10px',
-  //       }}
-  //     />
-  //   ) : (
-  //     'No image'
-  //   ),
-  //   product.products?.edges?.length || 0,
-  // ]);
+ 
 
 
   return (

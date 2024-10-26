@@ -3,7 +3,7 @@ import React from 'react';
 import BunchSelector from './BunchSelector';
 import "../index.css"
 
-const BundleDetails = ({ bundle, selectedBunch, onBunchChange, onContinue }) => {
+const BundleDetails = ({ bundle, selectedBunch, onBunchChange, onContinue ,handleInputChange}) => {
   return (
     <div className="App">
 
@@ -22,6 +22,7 @@ const BundleDetails = ({ bundle, selectedBunch, onBunchChange, onContinue }) => 
           selectedBunch={selectedBunch}
           onBunchChange={onBunchChange}
           onContinue={onContinue}
+          onInputChange={handleInputChange} 
         />
       )}
       </div>

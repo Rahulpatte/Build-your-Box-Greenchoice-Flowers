@@ -420,7 +420,7 @@ const handlePreviousPage = useCallback(() => {
             setEditedProductIds(bundle.products || []);
             // console.log("productsids", bundle.products);
             // console.log("EditedBundleLoader",editcreateBundlerLoader);
-            
+            setStatus(bundle.status)
             
            setEditcreateBundlerLoader(false)
             
@@ -585,7 +585,7 @@ const handlePreviousPage = useCallback(() => {
       title,
       image: imageToUpdate,
       bunches: selectedBunches.map((option) => option.value),
-      products: productsToUpdate, // Use existing products if no new ones are selected
+      products: productsToUpdate, 
       handle,
       status
     };
@@ -602,7 +602,7 @@ const handlePreviousPage = useCallback(() => {
       });
   
       if (response.ok) {
-        // Clear fields if not editing
+     
         if (!showeditedbundle) {
           setFiles([]);
           setImage("");

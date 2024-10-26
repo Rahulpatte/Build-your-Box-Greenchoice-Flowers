@@ -31,7 +31,7 @@ function App() {
   const [showCartButton, setShowCartButton] = useState(false);
 const[collectiondetails, setCollectionDetails]=useState([])
   const [loading, setLoading] = useState(false); // Add loading state
-
+  const [inputData, setInputData] = useState('');
 
 
 
@@ -183,7 +183,7 @@ const filterProductsByCollection = (selectedCollectionTitle) => {
               productTitle: productNode.title,
               productHandle: productNode.handle,
               productImage:
-                productNode.images.edges[0]?.node?.src || "", // Get the image or empty string if not available
+                productNode.images.edges[0]?.node?.src || "", 
               variantId: variantNode.id,
               variantPrice: variantNode.price,
               variantSKU: variantNode.sku,
@@ -424,9 +424,12 @@ console.log("product details--------------------",productDetails)
               quantity: 1,
               properties: {
                 items: productname.join(", "),
+                
               },
             },
           ],
+          note:inputData
+          
         };
   
         console.log("Form Data:", formData);
@@ -484,6 +487,11 @@ console.log("product details--------------------",productDetails)
     setShowProducts(false);
   };
  
+  const handleInputChange = (value) => {
+    setInputData(value); // Store input data in the parent state
+  };
+
+  console.log("input value",inputData)
 
   return (
     <>
@@ -516,8 +524,7 @@ console.log("product details--------------------",productDetails)
           <div className="Product-Details-container">
             {showProducts ? (
               <>
-                {/* Progress Bar (appears when showProducts is true) */}
-                {/* <button onClick={Backbutton}>Back</button> */}
+              
                 <div className="progress-container">
                   <div
                     className={`progress-steps ${currentStep === 1 ? "current" : currentStep > 1 ? "completed progress-steps-next" : "upcoming"} ${currentStep >= 2 ? "line-black" : ""}`}
@@ -590,15 +597,7 @@ console.log("product details--------------------",productDetails)
                                 {" "}
                                 {product.productTitle}
                               </h3>
-                              {/* <p className="product-details-stems">
-                                {
-                                  product.selectedOptions[0].value ===
-                                    "Default Title" &&
-                                  product.selectedOptions[0].name === "Title"
-                                    ? "" // Replace with an empty string if both conditions are true
-                                    : `${product.selectedOptions[0].name} ${product.selectedOptions[0].value}` // Render normally otherwise
-                                }
-                              </p> */}
+                           
 
                               <p className="product-price">${product.variantPrice}</p>
 
@@ -659,6 +658,7 @@ console.log("product details--------------------",productDetails)
                   selectedBunch={selectedBunch}
                   onBunchChange={handleBunchChange}
                   onContinue={handleContinue}
+                  handleInputChange={handleInputChange}
                 />
               </>
             ) : (
