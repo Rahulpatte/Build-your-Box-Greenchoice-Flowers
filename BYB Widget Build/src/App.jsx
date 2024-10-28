@@ -60,15 +60,7 @@ const[collectiondetails, setCollectionDetails]=useState([])
 
       setCollectionDetails(result)
 
-      // const updatedProducts = result.map((product) => ({
-      //   ...product,
-      //   displayName: product.displayName
-      //     .replace(" - Default Title", "") // Remove ' - Default Title'
-      //     .replace(/\s-\s\d+$/, "") // Remove ' - <number>' at the end
-      //     .trim(), // Trim any extra spaces
-      // }));
 
-      // console.log("updatedata----------------------", updatedProducts);
 
       const allProducts = [];
 
@@ -125,13 +117,6 @@ if (!allcollection.includes("All Products")) {
       }
 
 
-
-
-
-   
-
- 
-
       setCollections(allcollection);
 
       setProductLoader(false);
@@ -148,14 +133,6 @@ if (!allcollection.includes("All Products")) {
 
 
 
-
-
-
-
-
-
- // Assuming collectionDetails is your array of collections
-// selectedCollectionTitle is the title of the collection selected by the user
 
 const filterProductsByCollection = (selectedCollectionTitle) => {
   if (selectedCollectionTitle) {
@@ -207,6 +184,8 @@ const filterProductsByCollection = (selectedCollectionTitle) => {
 
 
 
+
+
   const handleTagClick = (collection) => {
     console.log("collections", collection);
 
@@ -215,7 +194,7 @@ const filterProductsByCollection = (selectedCollectionTitle) => {
     filterProductsByCollection(collection); 
   };
 
-  // console.log("Tags", tags);
+  
 
   const getdata = async () => {
     setCollectionLoader(true);
@@ -279,10 +258,7 @@ const filterProductsByCollection = (selectedCollectionTitle) => {
     setShowProducts(true);
   };
 
-  console.log("Current Step", currentStep);
-
-  console.log("Product Loader", productloader);
-
+ 
   useEffect(() => {
     if (bundle && productDetails.length > 0) {
       // Ensure productQuantities has the same length as productDetails
@@ -291,7 +267,9 @@ const filterProductsByCollection = (selectedCollectionTitle) => {
   }, [productDetails, bundle]);
 
   const handleIncrement = (index) => {
-    // Ensure the index is valid
+
+    console.log("index-----------",index)
+   
     if (modalOpenTracker > 0 && totalSelectedProducts == selectedBunch) {
       setShowModal(true);
     }
@@ -315,7 +293,6 @@ const filterProductsByCollection = (selectedCollectionTitle) => {
         console.log("newtotal", newTotal);
         console.log("selected bunch", selectedBunch);
 
-        // Show the modal when the bunch limit is reached or exceeded
         if (newTotal >= selectedBunch) {
           setShowModal(true);
           document.body.classList.add("cart_open");
@@ -327,17 +304,32 @@ const filterProductsByCollection = (selectedCollectionTitle) => {
   };
 
 
-console.log("product details--------------------",productDetails)
+// console.log("product details--------------------",productDetails)
+console.log("product quantity------------------------------",productQuantities)
 
   const handleCloseModal = () => {
     setShowModal(false);
     document.body.classList.remove("cart_open");
     setModalOpenTracker((prev) => prev + 1);
+
+
+
+
+    if(totalSelectedProducts>Number(selectedBunch)){
+      setTotalSelectedProducts(0)
+      setProductQuantities(new Array(productDetails.length).fill(0));
+    }
+
+console.log("qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq")
+   
+    console.log("selected bunch------------------------",selectedBunch)
   };
 
-  // console.log("ModalOpenTracker", modalOpenTracker);
 
-  // console.log("ShowModal", showModal);
+  console.log("total Products---------------------", totalSelectedProducts);
+  console.log("product quantity------------------------------",productQuantities)
+
+
 
   const handleDecrement = (index) => {
     if (productQuantities[index] > 0) {
@@ -354,7 +346,7 @@ console.log("product details--------------------",productDetails)
     }
   };
 
-  // console.log("total Products", totalSelectedProducts);
+ 
 
 
 
@@ -371,7 +363,7 @@ console.log("product details--------------------",productDetails)
     window.open(url, "_self"); // Use "_self" to open in the same tab
   };
 
- console.log('iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii',productDetails)
+//  console.log('iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii',productDetails)
 
   const AddtoCart = async () => {
     console.log("Add To Cart button clicked"); 
